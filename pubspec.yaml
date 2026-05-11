@@ -30,6 +30,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_svg: ^2.1.1
+    
+  pixelarticons: ^0.4.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -57,6 +60,19 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  assets: 
+    - assets/images/background.png
+    - assets/images/logo.png
+    - assets/icons/eye_off.svg
+
+  fonts:
+    - family: OSD Mono
+      fonts:
+        - asset: assets/fonts/VCR_OSD_MONO_1.001.ttf
+        
+    - family: Pixeled
+      fonts:
+        - asset: assets/fonts/Pixeled.ttf
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg
