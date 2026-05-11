@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'theme/app_fonts.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pixelarticons/pixelarticons.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -24,7 +27,10 @@ class TelefoneInputFormatter extends TextInputFormatter {
 
     if (numbers.isNotEmpty) {
       formatted += '(';
-      formatted += numbers.substring(0, numbers.length >= 2 ? 2 : numbers.length);
+      formatted += numbers.substring(
+        0,
+        numbers.length >= 2 ? 2 : numbers.length,
+      );
     }
 
     if (numbers.length >= 2) {
@@ -51,6 +57,8 @@ class TelefoneInputFormatter extends TextInputFormatter {
 class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
 
+  bool _obscurePassword = true;
+
   final _nomeController = TextEditingController();
   final _emailController = TextEditingController();
   final _senhaController = TextEditingController();
@@ -64,17 +72,17 @@ class _RegisterPageState extends State<RegisterPage> {
         SnackBar(
           content: Text(
             "Cadastro realizado!",
-            style: TextStyle(color: theme.colorScheme.primary),
+            style: AppFonts.body(color: theme.colorScheme.primary),
           ),
+
           backgroundColor: theme.colorScheme.surface,
+
           behavior: SnackBarBehavior.floating,
 
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-            side: BorderSide(
-              color: Theme.of(context).colorScheme.primary,
-              width: 1,
-            ),
+            borderRadius: BorderRadius.zero,
+
+            side: BorderSide(color: theme.colorScheme.primary, width: 1),
           ),
         ),
       );
@@ -83,87 +91,351 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    const double borderWidth = 0.8;
+    const double fieldSpacing = 25;
+    const double buttonHeight = 20;
+    const double maxContentWidth = 450;
+    const double erroMessageSize = 15;
+
+    const Color fieldBackground = Colors.black;
+    const Color borderColor = Colors.white;
+
+    const String backgroundPath = "assets/images/background.png";
+    const String logoPath = "assets/images/logo.png";
+
+    final OutlineInputBorder defaultBorder = const OutlineInputBorder(
+      borderRadius: BorderRadius.zero,
+      borderSide: BorderSide(color: borderColor, width: borderWidth),
+    );
+
+    final OutlineInputBorder focusedBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.zero,
+      borderSide: BorderSide(
+        color: theme.colorScheme.primary,
+        width: borderWidth,
+      ),
+    );
+
     return Scaffold(
-      appBar: AppBar(title: const Text("Crie seu cadastro")),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              TextFormField(
-                controller: _nomeController,
-                decoration: const InputDecoration(labelText: "NOME *"),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "O campo \"Nome\" é obrigatório";
-                  }
-                  return null;
-                },
-              ),
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              backgroundPath,
 
-              const SizedBox(height: 10),
+              fit: BoxFit.cover,
 
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(labelText: "EMAIL *"),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "O campo \"Email\" é obrigatório";
-                  }
-                  return null;
-                },
-              ),
+              filterQuality: FilterQuality.high,
+            ),
+          ),
 
-              const SizedBox(height: 10),
+          Positioned.fill(
+            child: Container(color: Colors.black.withValues(alpha: 0.35)),
+          ),
 
-              TextFormField(
-                controller: _senhaController,
-                obscureText: true,
-                decoration: const InputDecoration(labelText: "SENHA *"),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "O campo \"Senha\" é obrigatório";
-                  }
-                  return null;
-                },
-              ),
+          Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
 
-              const SizedBox(height: 10),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: maxContentWidth),
 
-              TextFormField(
-                controller: _telefoneController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: "TELEFONE"),
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  TelefoneInputFormatter(),
-                ],
-              ),
+                child: Form(
+                  key: _formKey,
 
-              const SizedBox(height: 20),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 180,
 
-              SizedBox(
-                width: double.infinity,
-                child: TextButton(
-                  style: TextButton.styleFrom(
-                    side: BorderSide(
-                      color: Theme.of(context).colorScheme.primary,
-                      width: 1,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                        child: Image.asset(
+                          logoPath,
+
+                          fit: BoxFit.contain,
+
+                          filterQuality: FilterQuality.high,
+                        ),
+                      ),
+
+                      const SizedBox(height: 30),
+
+                      Text(
+                        "TileFetch",
+                        style: AppFonts.title(color: Colors.white),
+                      ),
+
+                      const SizedBox(height: 65),
+
+                      Text(
+                        "CADASTRO",
+                        style: AppFonts.body(
+                          color: theme.colorScheme.primary,
+                          weight: FontWeight.bold,
+                        ),
+                      ),
+
+                      const SizedBox(height: 65),
+
+                      TextFormField(
+                        controller: _nomeController,
+
+                        style: AppFonts.body(color: Colors.white),
+
+                        decoration: InputDecoration(
+                          labelText: "Nome *",
+
+                          filled: true,
+                          fillColor: fieldBackground,
+
+                          labelStyle: AppFonts.body(color: Colors.white70),
+
+                          errorStyle: AppFonts.body(
+                            size: erroMessageSize,
+                            color: theme.colorScheme.error,
+                          ),
+
+                          border: defaultBorder,
+                          enabledBorder: defaultBorder,
+                          focusedBorder: focusedBorder,
+                        ),
+
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'O campo "Nome" é obrigatório';
+                          }
+                          return null;
+                        },
+                      ),
+
+                      SizedBox(height: fieldSpacing),
+
+                      TextFormField(
+                        controller: _emailController,
+
+                        style: AppFonts.body(color: Colors.white),
+
+                        decoration: InputDecoration(
+                          labelText: "Email *",
+
+                          filled: true,
+                          fillColor: fieldBackground,
+
+                          labelStyle: AppFonts.body(color: Colors.white70),
+
+                          errorStyle: AppFonts.body(
+                            size: erroMessageSize,
+                            color: theme.colorScheme.error,
+                          ),
+
+                          border: defaultBorder,
+                          enabledBorder: defaultBorder,
+                          focusedBorder: focusedBorder,
+                        ),
+
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'O campo "Email" é obrigatório';
+                          }
+
+                          final emailRegex = RegExp(
+                            r'^[\w\-\.]+@([\w\-]+\.)+[\w\-]{2,4}$',
+                          );
+
+                          if (!emailRegex.hasMatch(value)) {
+                            return 'Insira um email válido';
+                          }
+
+                          return null;
+                        },
+                      ),
+
+                      SizedBox(height: fieldSpacing),
+
+                      TextFormField(
+                        controller: _senhaController,
+                        obscureText: _obscurePassword,
+                        style: AppFonts.body(color: Colors.white),
+
+                        decoration: InputDecoration(
+                          labelText: "Senha *",
+                          filled: true,
+                          fillColor: fieldBackground,
+                          labelStyle: AppFonts.body(color: Colors.white70),
+                          errorStyle: AppFonts.body(
+                            size: erroMessageSize,
+                            color: theme.colorScheme.error,
+                          ),
+
+                          suffixIcon: Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: IconButton(
+                              constraints: const BoxConstraints(),
+                              padding: EdgeInsets.zero,
+                              icon:
+                                  _obscurePassword
+                                      ? const Icon(
+                                        Pixel.eye,
+                                        color: Colors.white70,
+                                        size: 30,
+                                      )
+                                      : SvgPicture.asset(
+                                        'assets/icons/eye_off.svg',
+                                        width: 20,
+                                        height: 20,
+                                        colorFilter: const ColorFilter.mode(
+                                          Colors.white70,
+                                          BlendMode.srcIn,
+                                        ),
+                                      ),
+                              onPressed: () {
+                                setState(() {
+                                  _obscurePassword = !_obscurePassword;
+                                });
+                              },
+                            ),
+                          ),
+
+                          border: defaultBorder,
+                          enabledBorder: defaultBorder,
+                          focusedBorder: focusedBorder,
+                        ),
+
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'O campo "Senha" é obrigatório';
+                          }
+                          if (value.length < 8) {
+                            return 'A senha deve ter ao menos 8 caracteres';
+                          }
+                          if (!RegExp(r'[A-Z]').hasMatch(value)) {
+                            return 'A senha precisa de uma letra maiúscula';
+                          }
+                          if (!RegExp(r'[a-z]').hasMatch(value)) {
+                            return 'A senha precisa de uma letra minúscula';
+                          }
+                          if (!RegExp(r'[0-9]').hasMatch(value)) {
+                            return 'A senha precisa de um número';
+                          }
+                          if (!RegExp(
+                            r'[!@#$%^&*(),.?":{}|<>]',
+                          ).hasMatch(value)) {
+                            return 'A senha precisa de um caractere especial';
+                          }
+                          return null;
+                        },
+                      ),
+
+                      SizedBox(height: fieldSpacing),
+
+                      TextFormField(
+                        controller: _telefoneController,
+
+                        keyboardType: TextInputType.number,
+
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          TelefoneInputFormatter(),
+                        ],
+
+                        style: AppFonts.body(color: Colors.white),
+
+                        decoration: InputDecoration(
+                          labelText: "Telefone",
+
+                          filled: true,
+                          fillColor: fieldBackground,
+
+                          labelStyle: AppFonts.body(color: Colors.white70),
+
+                          border: defaultBorder,
+                          enabledBorder: defaultBorder,
+                          focusedBorder: focusedBorder,
+                        ),
+                      ),
+
+                      const SizedBox(height: 35),
+
+                      SizedBox(
+                        width: double.infinity,
+
+                        child: TextButton(
+                          style: TextButton.styleFrom(
+                            backgroundColor: fieldBackground,
+
+                            padding: const EdgeInsets.symmetric(
+                              vertical: buttonHeight,
+                            ),
+
+                            side: const BorderSide(
+                              color: borderColor,
+                              width: borderWidth,
+                            ),
+
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.zero,
+                            ),
+                          ),
+
+                          onPressed: _submit,
+
+                          child: Text(
+                            "Cadastrar",
+
+                            style: AppFonts.body(
+                              color: Colors.white,
+                              weight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 15),
+
+                      SizedBox(
+                        width: double.infinity,
+
+                        child: TextButton(
+                          style: TextButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+
+                            padding: const EdgeInsets.symmetric(
+                              vertical: buttonHeight,
+                            ),
+
+                            side: const BorderSide(
+                              color: borderColor,
+                              width: borderWidth,
+                            ),
+
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.zero,
+                            ),
+                          ),
+
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+
+                          child: Text(
+                            "Já possui uma conta?",
+
+                            style: AppFonts.body(
+                              color: Colors.white,
+                              weight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  onPressed: () {
-                    _submit();
-                  },
-                  child: const Text("Cadastre-se"),
                 ),
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
