@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "609500133322",
+    "project_id": "tilefetch",
+    "storage_bucket": "tilefetch.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:609500133322:android:4dfb5ce4ae596dafed4133",
+        "android_client_info": {
+          "package_name": "com.example.tilefetch"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA8XFt3zO8cyhMeesFYuUDS4728cktXSvI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
