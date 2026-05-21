@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'home_page.dart';
 import 'register_page.dart';
-import 'theme/app_fonts.dart';
+import 'theme/index.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -12,15 +12,28 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
+  String? _passwordError;
+
+  String? _validateEmail(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'O campo "Email" é obrigatório';
+    }
+    final emailRegex = RegExp(r'^[\w\-\.]+@([\w\-]+\.)+[\w\-]{2,4}$');
+    if (!emailRegex.hasMatch(value)) {
+      return 'Insira um email válido';
+    }
+    return null;
+  }
 
   Future<void> _signIn() async {
-    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Preencha todos os campos.")),
-      );
+    _passwordError = null;
+
+    if (!_formKey.currentState!.validate()) {
+      setState(() {});
       return;
     }
 
@@ -39,17 +52,22 @@ class _LoginPageState extends State<LoginPage> {
     } on FirebaseAuthException catch (e) {
       String message = "Ocorreu um erro ao entrar.";
       if (e.code == 'user-not-found') {
-        message = "Usuário não encontrado.";
+        _passwordError = "Usuário não encontrado.";
       } else if (e.code == 'wrong-password') {
-        message = "Senha incorreta.";
+        _passwordError = "Senha incorreta.";
       } else if (e.code == 'invalid-email') {
-        message = "E-mail inválido.";
+        _passwordError = "E-mail inválido.";
+      } else {
+        message = e.message ?? "Erro ao entrar.";
       }
-      
+
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message)),
-        );
+        setState(() {});
+        if (_passwordError == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(message)),
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -71,177 +89,139 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    const double borderWidth = 0.8;
-    const double fieldSpacing = 25;
-    const double buttonHeight = 20;
-    const double maxContentWidth = 450;
-
-    const Color fieldBackground = Colors.black;
-    const Color borderColor = Colors.white;
-
-    const String backgroundPath = "assets/images/background.png";
-    const String logoPath = "assets/images/logo.png";
-
-    final OutlineInputBorder defaultBorder = const OutlineInputBorder(
-      borderRadius: BorderRadius.zero,
-      borderSide: BorderSide(color: borderColor, width: borderWidth),
-    );
-
-    final OutlineInputBorder focusedBorder = OutlineInputBorder(
-      borderRadius: BorderRadius.zero,
-      borderSide: BorderSide(
-        color: theme.colorScheme.primary,
-        width: borderWidth,
-      ),
-    );
-
     return Scaffold(
       body: Stack(
         children: [
           Positioned.fill(
             child: Image.asset(
-              backgroundPath,
+              AppAssets.backgroundImage,
               fit: BoxFit.cover,
               filterQuality: FilterQuality.high,
             ),
           ),
           Positioned.fill(
-            child: Container(color: Colors.black.withValues(alpha: 0.35)),
+            child: Container(color: AppColors.overlayDark),
           ),
           Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(AppSpacing.pagePadding),
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: maxContentWidth),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      width: 180,
-                      child: Image.asset(
-                        logoPath,
-                        fit: BoxFit.contain,
-                        filterQuality: FilterQuality.high,
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-                    Text(
-                      "TileFetch",
-                      style: AppFonts.title(color: Colors.white),
-                    ),
-                    const SizedBox(height: 65),
-                    Text(
-                      "LOGIN",
-                      style: AppFonts.body(
-                        color: theme.colorScheme.primary,
-                        weight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 65),
-                    TextField(
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      style: AppFonts.body(size: 18, color: Colors.white),
-                      decoration: InputDecoration(
-                        labelText: "Email",
-                        filled: true,
-                        fillColor: fieldBackground,
-                        labelStyle: AppFonts.body(
-                          color: Colors.white70,
+                constraints: const BoxConstraints(maxWidth: AppSpacing.maxContentWidth),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: AppSpacing.logoWidth,
+                        child: Image.asset(
+                          AppAssets.logoImage,
+                          fit: BoxFit.contain,
+                          filterQuality: FilterQuality.high,
                         ),
-                        border: defaultBorder,
-                        enabledBorder: defaultBorder,
-                        focusedBorder: focusedBorder,
                       ),
-                    ),
-                    const SizedBox(height: fieldSpacing),
-                    TextField(
-                      controller: _passwordController,
-                      obscureText: true,
-                      style: AppFonts.body(color: Colors.white),
-                      decoration: InputDecoration(
-                        labelText: "Senha",
-                        filled: true,
-                        fillColor: fieldBackground,
-                        labelStyle: AppFonts.body(color: Colors.white70),
-                        border: defaultBorder,
-                        enabledBorder: defaultBorder,
-                        focusedBorder: focusedBorder,
+                      const SizedBox(height: AppSpacing.lg),
+                      Text(
+                        "TileFetch",
+                        style: AppFonts.title(color: AppColors.textPrimary),
                       ),
-                    ),
-                    const SizedBox(height: 35),
-                    SizedBox(
-                      width: double.infinity,
-                      child: TextButton(
-                        style: TextButton.styleFrom(
-                          backgroundColor: fieldBackground,
-                          padding: const EdgeInsets.symmetric(
-                            vertical: buttonHeight,
+                      const SizedBox(height: AppSpacing.xxxl),
+                      Text(
+                        "LOGIN",
+                        style: AppFonts.body(
+                          color: AppColors.success,
+                          weight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.xxxl),
+                      TextFormField(
+                        controller: _emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        style: AppTextFields.inputTextStyle(size: 18),
+                        decoration: AppTextFields.emailInputDecoration(),
+                        validator: _validateEmail,
+                      ),
+                      const SizedBox(height: AppSpacing.fieldSpacing),
+                      TextFormField(
+                        controller: _passwordController,
+                        obscureText: true,
+                        style: AppTextFields.inputTextStyle(),
+                        decoration: InputDecoration(
+                          labelText: "Senha",
+                          filled: true,
+                          fillColor: AppColors.fieldBackground,
+                          labelStyle: AppFonts.body(
+                            color: AppColors.textSecondary,
                           ),
-                          side: const BorderSide(
-                            color: borderColor,
-                            width: borderWidth,
+                          errorStyle: AppFonts.body(
+                            size: 15,
+                            color: AppColors.error,
                           ),
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.zero,
+                          border: AppBorders.defaultInputBorder,
+                          enabledBorder: AppBorders.defaultInputBorder,
+                          focusedBorder: AppBorders.focusedInputBorder,
+                          errorBorder: AppBorders.errorInputBorder,
+                          focusedErrorBorder: AppBorders.errorInputBorder,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.inputPadding,
+                            vertical: AppSpacing.inputPadding,
                           ),
                         ),
-                        onPressed: _isLoading ? null : _signIn,
-                        child: _isLoading
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : Text(
-                                "Entrar",
-                                style: AppFonts.body(
-                                  color: Colors.white,
-                                  weight: FontWeight.bold,
-                                ),
-                              ),
-                      ),
-                    ),
-                    const SizedBox(height: 15),
-                    SizedBox(
-                      width: double.infinity,
-                      child: TextButton(
-                        style: TextButton.styleFrom(
-                          backgroundColor: fieldBackground,
-                          padding: const EdgeInsets.symmetric(
-                            vertical: buttonHeight,
-                          ),
-                          side: const BorderSide(
-                            color: borderColor,
-                            width: borderWidth,
-                          ),
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.zero,
-                          ),
-                        ),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const RegisterPage(),
-                            ),
-                          );
+                        validator: (value) {
+                          if (_validateEmail(_emailController.text) != null) {
+                            return null;
+                          }
+                          if (_passwordError != null) {
+                            return _passwordError;
+                          }
+                          if (value == null || value.isEmpty) {
+                            return 'O campo "Senha" é obrigatório';
+                          }
+                          return null;
                         },
-                        child: Text(
-                          "Cadastrar-se",
-                          style: AppFonts.body(
-                            color: Colors.white,
-                            weight: FontWeight.bold,
+                      ),
+                      const SizedBox(height: AppSpacing.xl),
+                      SizedBox(
+                        width: double.infinity,
+                        child: TextButton(
+                          style: AppButtons.primaryButtonStyle(),
+                          onPressed: _isLoading ? null : _signIn,
+                          child: _isLoading
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    color: AppColors.textPrimary,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : Text(
+                                  "Entrar",
+                                  style: AppButtons.buttonTextStyle(),
+                                ),
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      SizedBox(
+                        width: double.infinity,
+                        child: TextButton(
+                          style: AppButtons.primaryButtonStyle(),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const RegisterPage(),
+                              ),
+                            );
+                          },
+                          child: Text(
+                            "Cadastrar-se",
+                            style: AppButtons.buttonTextStyle(),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
