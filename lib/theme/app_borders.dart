@@ -17,7 +17,7 @@ class AppBorders {
   static final OutlineInputBorder focusedInputBorder = const OutlineInputBorder(
     borderRadius: BorderRadius.zero,
     borderSide: BorderSide(
-      color: AppColors.borderSuccess,
+      color: AppColors.primary,
       width: defaultBorderWidth,
     ),
   );
@@ -37,7 +37,7 @@ class AppBorders {
   );
 
   static const BorderSide successBorderSide = BorderSide(
-    color: AppColors.borderSuccess,
+    color: AppColors.primary,
     width: defaultBorderWidth,
   );
 

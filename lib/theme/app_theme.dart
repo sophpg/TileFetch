@@ -9,7 +9,7 @@ class AppTheme {
     return base.copyWith(
       textTheme: AppFonts.appTextTheme(base.textTheme),
       colorScheme: base.colorScheme.copyWith(
-        primary: AppColors.success,
+        primary: AppColors.primary,
         error: AppColors.error,
       ),
     );

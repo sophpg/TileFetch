@@ -16,6 +16,11 @@ class AppColors {
   static const Color borderSuccess = success;
   static const Color borderError = error;
 
+  // ========== CORES DE TEMA ==========
+  static const Color primary = Color.fromARGB(255, 210, 95, 255);
+  static const Color accent = Color.fromARGB(255, 183, 0, 255);
+  static const Color highlight = Color.fromARGB(255, 181, 0, 253);
+
   // ========== CORES DE STATUS ==========
   static const Color success = Color.fromARGB(255, 0, 255, 65);
   static const Color error = Color.fromARGB(255, 255, 51, 51);

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'home_page.dart';
+import 'main_navigation_page.dart';
 import 'register_page.dart';
 import 'theme/index.dart';
 
@@ -46,7 +46,7 @@ class _LoginPageState extends State<LoginPage> {
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const HomePage()),
+          MaterialPageRoute(builder: (_) => const MainNavigationPage()),
         );
       }
     } on FirebaseAuthException catch (e) {
@@ -129,7 +129,7 @@ class _LoginPageState extends State<LoginPage> {
                       Text(
                         "LOGIN",
                         style: AppFonts.body(
-                          color: AppColors.success,
+                          color: AppColors.primary,
                           weight: FontWeight.bold,
                         ),
                       ),

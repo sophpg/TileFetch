@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'home_page.dart';
+import 'main_navigation_page.dart';
 import 'theme/index.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pixelarticons/pixelarticons.dart';
@@ -76,24 +76,26 @@ class _RegisterPageState extends State<RegisterPage> {
         // Criar usuário no Firebase Auth
         UserCredential userCredential = await FirebaseAuth.instance
             .createUserWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _senhaController.text.trim(),
-        );
+              email: _emailController.text.trim(),
+              password: _senhaController.text.trim(),
+            );
 
         // Opcional: Atualizar o nome do usuário no perfil do Firebase
-        await userCredential.user?.updateDisplayName(_nomeController.text.trim());
+        await userCredential.user?.updateDisplayName(
+          _nomeController.text.trim(),
+        );
 
         // Salvar dados adicionais no Cloud Firestore
         await FirebaseFirestore.instance
             .collection('users')
             .doc(userCredential.user!.uid)
             .set({
-          'uid': userCredential.user!.uid,
-          'nome': _nomeController.text.trim(),
-          'email': _emailController.text.trim(),
-          'telefone': _telefoneController.text.trim(),
-          'createdAt': FieldValue.serverTimestamp(),
-        });
+              'uid': userCredential.user!.uid,
+              'nome': _nomeController.text.trim(),
+              'email': _emailController.text.trim(),
+              'telefone': _telefoneController.text.trim(),
+              'createdAt': FieldValue.serverTimestamp(),
+            });
 
         if (mounted) {
           final theme = Theme.of(context);
@@ -115,7 +117,7 @@ class _RegisterPageState extends State<RegisterPage> {
           // Navegar para a Home
           Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(builder: (_) => const HomePage()),
+            MaterialPageRoute(builder: (_) => const MainNavigationPage()),
             (route) => false,
           );
         }
@@ -130,9 +132,9 @@ class _RegisterPageState extends State<RegisterPage> {
         }
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(message)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(message)));
         }
       } catch (e) {
         if (mounted) {
@@ -167,14 +169,14 @@ class _RegisterPageState extends State<RegisterPage> {
               filterQuality: FilterQuality.high,
             ),
           ),
-          Positioned.fill(
-            child: Container(color: AppColors.overlayDark),
-          ),
+          Positioned.fill(child: Container(color: AppColors.overlayDark)),
           Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(AppSpacing.pagePadding),
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: AppSpacing.maxContentWidth),
+                constraints: const BoxConstraints(
+                  maxWidth: AppSpacing.maxContentWidth,
+                ),
                 child: Form(
                   key: _formKey,
                   child: Column(
@@ -197,7 +199,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       Text(
                         "CADASTRO",
                         style: AppFonts.body(
-                          color: AppColors.success,
+                          color: AppColors.primary,
                           weight: FontWeight.bold,
                         ),
                       ),
@@ -205,7 +207,9 @@ class _RegisterPageState extends State<RegisterPage> {
                       TextFormField(
                         controller: _nomeController,
                         style: AppTextFields.inputTextStyle(),
-                        decoration: AppTextFields.requiredInputDecoration(label: "Nome"),
+                        decoration: AppTextFields.requiredInputDecoration(
+                          label: "Nome",
+                        ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'O campo "Nome" é obrigatório';
@@ -217,7 +221,9 @@ class _RegisterPageState extends State<RegisterPage> {
                       TextFormField(
                         controller: _emailController,
                         style: AppTextFields.inputTextStyle(),
-                        decoration: AppTextFields.requiredInputDecoration(label: "Email"),
+                        decoration: AppTextFields.requiredInputDecoration(
+                          label: "Email",
+                        ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'O campo "Email" é obrigatório';
@@ -238,25 +244,28 @@ class _RegisterPageState extends State<RegisterPage> {
                         style: AppTextFields.inputTextStyle(),
                         decoration: AppTextFields.passwordInputDecoration(
                           suffixIcon: Padding(
-                            padding: const EdgeInsets.only(right: AppSpacing.sm),
+                            padding: const EdgeInsets.only(
+                              right: AppSpacing.sm,
+                            ),
                             child: IconButton(
                               constraints: const BoxConstraints(),
                               padding: EdgeInsets.zero,
-                              icon: _obscurePassword
-                                  ? const Icon(
-                                      Pixel.eye,
-                                      color: AppColors.textSecondary,
-                                      size: 30,
-                                    )
-                                  : SvgPicture.asset(
-                                      AppAssets.eyeOffIcon,
-                                      width: 20,
-                                      height: 20,
-                                      colorFilter: const ColorFilter.mode(
-                                        AppColors.textSecondary,
-                                        BlendMode.srcIn,
+                              icon:
+                                  _obscurePassword
+                                      ? const Icon(
+                                        Pixel.eye,
+                                        color: AppColors.textSecondary,
+                                        size: 30,
+                                      )
+                                      : SvgPicture.asset(
+                                        AppAssets.eyeOffIcon,
+                                        width: 20,
+                                        height: 20,
+                                        colorFilter: const ColorFilter.mode(
+                                          AppColors.textSecondary,
+                                          BlendMode.srcIn,
+                                        ),
                                       ),
-                                    ),
                               onPressed: () {
                                 setState(() {
                                   _obscurePassword = !_obscurePassword;
@@ -306,19 +315,20 @@ class _RegisterPageState extends State<RegisterPage> {
                         child: TextButton(
                           style: AppButtons.primaryButtonStyle(),
                           onPressed: _isLoading ? null : _submit,
-                          child: _isLoading
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    color: AppColors.textPrimary,
-                                    strokeWidth: 2,
+                          child:
+                              _isLoading
+                                  ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      color: AppColors.textPrimary,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                  : Text(
+                                    "Cadastrar",
+                                    style: AppButtons.buttonTextStyle(),
                                   ),
-                                )
-                              : Text(
-                                  "Cadastrar",
-                                  style: AppButtons.buttonTextStyle(),
-                                ),
                         ),
                       ),
                       const SizedBox(height: AppSpacing.md),
