@@ -203,9 +203,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       TextFormField(
                         controller: _nomeController,
                         style: AppTextFields.inputTextStyle(),
-                        decoration: AppTextFields.requiredInputDecoration(
-                          label: "Nome",
-                        ),
+                        decoration: AppTextFields.nameInputDecoration(),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'O campo "Nome" é obrigatório';
@@ -217,9 +215,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       TextFormField(
                         controller: _emailController,
                         style: AppTextFields.inputTextStyle(),
-                        decoration: AppTextFields.requiredInputDecoration(
-                          label: "Email",
-                        ),
+                        decoration: AppTextFields.emailInputDecoration(),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'O campo "Email" é obrigatório';

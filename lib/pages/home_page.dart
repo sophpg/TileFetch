@@ -292,7 +292,7 @@ class _HomePageState extends State<HomePage> {
               children: [
                 Text(
                   post.titulo,
-                  style: AppFonts.title(color: AppColors.textPrimary, size: 20),
+                  style: AppFonts.body(color: AppColors.textPrimary, size: 32),
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 AppHelpers.borderedContainer(
@@ -385,10 +385,8 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     AppHelpers.styledButton(
                       label: 'Fechar',
-                      onPressed: () => Navigator.of(context).pop(),
                       borderColor: AppColors.primary,
-                      textColor: AppColors.background,
-                      backgroundColor: AppColors.primary,
+                      onPressed: () => Navigator.of(context).pop(),
                     ),
                     StatefulBuilder(
                       builder: (context, setDialogState) {
