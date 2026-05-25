@@ -146,27 +146,7 @@ class _LoginPageState extends State<LoginPage> {
                         controller: _passwordController,
                         obscureText: true,
                         style: AppTextFields.inputTextStyle(),
-                        decoration: InputDecoration(
-                          labelText: "Senha",
-                          filled: true,
-                          fillColor: AppColors.fieldBackground,
-                          labelStyle: AppFonts.body(
-                            color: AppColors.textSecondary,
-                          ),
-                          errorStyle: AppFonts.body(
-                            size: 15,
-                            color: AppColors.error,
-                          ),
-                          border: AppBorders.defaultInputBorder,
-                          enabledBorder: AppBorders.defaultInputBorder,
-                          focusedBorder: AppBorders.focusedInputBorder,
-                          errorBorder: AppBorders.errorInputBorder,
-                          focusedErrorBorder: AppBorders.errorInputBorder,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.inputPadding,
-                            vertical: AppSpacing.inputPadding,
-                          ),
-                        ),
+                        decoration: AppTextFields.passwordInputDecoration(),
                         validator: (value) {
                           if (_validateEmail(_emailController.text) != null) {
                             return null;

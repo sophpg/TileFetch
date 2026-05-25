@@ -35,6 +35,7 @@ class AppHelpers {
         backgroundColor: backgroundColor,
         padding: const EdgeInsets.symmetric(
           vertical: AppSpacing.buttonHeight,
+          horizontal: AppSpacing.xs,
         ),
         side: BorderSide(
           color: borderColor,
