@@ -404,9 +404,7 @@ class _HomePageState extends State<HomePage> {
                                   if (mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
-                                        content: Text(
-                                          'Faça login para curtir.',
-                                        ),
+                                        content: Text('Faça login para curtir.'),
                                       ),
                                     );
                                   }
