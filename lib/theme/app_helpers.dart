@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../theme/index.dart';
 
 class AppHelpers {
-  /// Cria um container estilizado com borda branca padrão
   static Container borderedContainer({
     required Widget child,
     Color borderColor = AppColors.borderDefault,
@@ -23,7 +22,6 @@ class AppHelpers {
     );
   }
 
-  /// Cria um botão estilizado reutilizável
   static TextButton styledButton({
     required String label,
     required VoidCallback onPressed,
@@ -51,13 +49,11 @@ class AppHelpers {
         label,
         style: AppFonts.body(
           color: textColor,
-          weight: FontWeight.bold,
         ),
       ),
     );
   }
 
-  /// Cria um chip filtro reutilizável
   static Container filterChip({
     required String label,
     required bool isSelected,
@@ -89,7 +85,6 @@ class AppHelpers {
     );
   }
 
-  /// Cria um input field estilizado
   static TextFormField styledTextField({
     required TextEditingController controller,
     required String label,
@@ -129,7 +124,6 @@ class AppHelpers {
     );
   }
 
-  /// Wrapper para stack com background + overlay
   static Stack backgroundStack({
     required List<Widget> children,
   }) {
@@ -150,7 +144,6 @@ class AppHelpers {
     );
   }
 
-  /// Cria um indicador de loading
   static Center loadingIndicator() {
     return const Center(
       child: CircularProgressIndicator(
@@ -159,7 +152,6 @@ class AppHelpers {
     );
   }
 
-  /// Cria uma mensagem de erro/vazio
   static Center emptyMessage(String message) {
     return Center(
       child: Text(
@@ -169,7 +161,6 @@ class AppHelpers {
     );
   }
 
-  /// Formata uma cor hex em Color Flutter
   static Color hexToColor(String hex) {
     try {
       return Color(int.parse('0xFF${hex.replaceFirst('#', '')}'));

@@ -166,37 +166,55 @@ class FirestoreService {
     }
   }
 
-  Future<void> toggleLike(String postId, String userId) async {
+  Future<bool> toggleLike(String postId, String userId) async {
     try {
-      DocumentReference postRef = _firestore.collection('posts').doc(postId);
+      final postRef = _firestore.collection('posts').doc(postId);
+      final likeRef = _firestore.collection('curtidas').doc('$postId-$userId');
 
       await _firestore.runTransaction((transaction) async {
-        DocumentSnapshot postSnapshot = await transaction.get(postRef);
-        Post post = Post.fromFirestore(postSnapshot);
+        final postSnapshot = await transaction.get(postRef);
+        if (!postSnapshot.exists) return;
+        final post = Post.fromFirestore(postSnapshot);
 
-        int newLikes = post.curtidas;
-        if (post.isLikedByMe) {
-          newLikes--;
+        final likeSnapshot = await transaction.get(likeRef);
+
+        if (likeSnapshot.exists) {
+          transaction.update(postRef, {'curtidas': (post.curtidas - 1).clamp(0, 999999)});
+          transaction.delete(likeRef);
         } else {
-          newLikes++;
+          transaction.update(postRef, {'curtidas': post.curtidas + 1});
+          transaction.set(likeRef, {
+            'postId': postId,
+            'usuarioId': userId,
+            'dataCurtida': FieldValue.serverTimestamp(),
+          });
         }
-
-        transaction.update(postRef, {'curtidas': newLikes});
-
-        await _firestore
-            .collection('curtidas')
-            .doc('$postId-$userId')
-            .set({
-          'postId': postId,
-          'usuarioId': userId,
-          'dataCurtida': FieldValue.serverTimestamp(),
-        }).catchError((_) {
-          transaction.delete(
-              _firestore.collection('curtidas').doc('$postId-$userId'));
-        });
       });
+
+      return true;
     } catch (e) {
       print('Erro ao curtir post: $e');
+      return false;
+    }
+  }
+
+  Future<bool> isPostLikedByUser(String postId, String userId) async {
+    try {
+      final doc = await _firestore.collection('curtidas').doc('$postId-$userId').get();
+      return doc.exists;
+    } catch (e) {
+      print('Erro ao verificar curtida: $e');
+      return false;
+    }
+  }
+
+  Future<List<String>> getUserLikedPostIds(String userId) async {
+    try {
+      final snapshot = await _firestore.collection('curtidas').where('usuarioId', isEqualTo: userId).get();
+      return snapshot.docs.map((d) => (d.data()['postId'] as String)).toList();
+    } catch (e) {
+      print('Erro ao buscar curtidas do usuário: $e');
+      return [];
     }
   }
 
@@ -266,6 +284,17 @@ class FirestoreService {
     } catch (e) {
       print('Erro ao buscar resoluções: $e');
       return [];
+    }
+  }
+
+  Future<Map<String, dynamic>?> getUserProfile(String userId) async {
+    try {
+      final doc = await _firestore.collection('users').doc(userId).get();
+      if (!doc.exists) return null;
+      return doc.data() as Map<String, dynamic>?;
+    } catch (e) {
+      print('Erro ao buscar perfil do usuário: $e');
+      return null;
     }
   }
 }

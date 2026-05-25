@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'home_page.dart';
-import 'pages/profile_page.dart';
-import 'components/custom_bottom_nav.dart';
-import 'theme/index.dart';
+import 'profile_page.dart';
+import 'upload_page.dart';
+import '../components/custom_bottom_nav.dart';
+import '../theme/index.dart';
 
 class MainNavigationPage extends StatefulWidget {
   const MainNavigationPage({super.key});
@@ -13,14 +14,26 @@ class MainNavigationPage extends StatefulWidget {
 
 class _MainNavigationPageState extends State<MainNavigationPage> {
   int _selectedIndex = 0;
+  late List<Widget> _screens;
 
-  final List<Widget> _screens = [
-    const HomePage(),
-    _buildComingSoonScreen('Busca Avançada'),
-    _buildComingSoonScreen('Upload de Posts'),
-    _buildComingSoonScreen('Favoritos'),
-    const ProfilePage(),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _screens = [
+      const HomePage(),
+      _buildComingSoonScreen('Busca Avançada'),
+      UploadPage(onUploadSuccess: _handleUploadSuccess),
+      _buildComingSoonScreen('Favoritos'),
+      const ProfilePage(),
+    ];
+  }
+
+  void _handleUploadSuccess() {
+    setState(() {
+      _screens[0] = const HomePage();
+      _selectedIndex = 0;
+    });
+  }
 
   static Widget _buildComingSoonScreen(String title) {
     return Scaffold(

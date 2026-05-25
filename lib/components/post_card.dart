@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import '../models/post_model.dart';
 import '../theme/index.dart';
@@ -38,35 +40,48 @@ class _PostCardState extends State<PostCard> {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              Image.network(
-                widget.post.thumbnail,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: AppColors.fieldBackground,
-                    child: const Icon(
-                      Icons.broken_image,
-                      color: AppColors.textSecondary,
-                    ),
-                  );
-                },
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return Container(
-                    color: AppColors.fieldBackground,
-                    child: const Center(
-                      child: SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          color: AppColors.success,
-                          strokeWidth: 2,
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
+              widget.post.thumbnail.isNotEmpty
+                  ? Image.network(
+                      widget.post.thumbnail,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: AppColors.fieldBackground,
+                          child: const Icon(
+                            Icons.broken_image,
+                            color: AppColors.textSecondary,
+                          ),
+                        );
+                      },
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Container(
+                          color: AppColors.fieldBackground,
+                          child: const Center(
+                            child: SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                color: AppColors.success,
+                                strokeWidth: 2,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    )
+                  : (widget.post.thumbnailBase64 != null
+                      ? Image.memory(
+                          base64Decode(widget.post.thumbnailBase64!),
+                          fit: BoxFit.cover,
+                        )
+                      : Container(
+                          color: AppColors.fieldBackground,
+                          child: const Icon(
+                            Icons.broken_image,
+                            color: AppColors.textSecondary,
+                          ),
+                        )),
               if (_isHovered)
                 Container(
                   color: AppColors.overlayDark,
@@ -95,11 +110,18 @@ class _PostCardState extends State<PostCard> {
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(
-                                  Icons.favorite,
-                                  color: AppColors.primary,
-                                  size: 14,
-                                ),
+                                    IconButton(
+                                      padding: EdgeInsets.zero,
+                                      constraints: const BoxConstraints(),
+                                      icon: Icon(
+                                        widget.post.isLikedByMe ? Icons.favorite : Icons.favorite_border,
+                                        color: AppColors.primary,
+                                        size: 16,
+                                      ),
+                                      onPressed: () {
+                                        widget.onLike?.call(widget.post.id);
+                                      },
+                                    ),
                                 const SizedBox(width: 4),
                                 Text(
                                   widget.post.curtidas.toString(),

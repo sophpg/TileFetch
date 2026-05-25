@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../login_page.dart';
+import 'login_page.dart';
 import '../theme/index.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -111,7 +111,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          // Avatar
                           Container(
                             width: 120,
                             height: 120,
@@ -142,7 +141,6 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                           const SizedBox(height: AppSpacing.lg),
 
-                          // Nome
                           Text(
                             _userData?['nome'] ?? _currentUser!.displayName ?? 'Sem nome',
                             style: AppFonts.title(
@@ -153,7 +151,6 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                           const SizedBox(height: AppSpacing.md),
 
-                          // Email
                           Text(
                             _currentUser!.email ?? 'Sem email',
                             style: AppFonts.body(
@@ -164,7 +161,6 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                           const SizedBox(height: AppSpacing.xxxl),
 
-                          // Card de informações
                           Container(
                             width: double.infinity,
                             padding: const EdgeInsets.all(AppSpacing.cardPadding),
@@ -208,7 +204,6 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                           const SizedBox(height: AppSpacing.xxxl),
 
-                          // Botão Logout
                           SizedBox(
                             width: double.infinity,
                             child: TextButton(
@@ -245,7 +240,6 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                           const SizedBox(height: AppSpacing.lg),
 
-                          // User ID (debug)
                           Opacity(
                             opacity: 0.5,
                             child: Text(

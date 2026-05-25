@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'main_navigation_page.dart';
-import 'theme/index.dart';
+import '../theme/index.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pixelarticons/pixelarticons.dart';
 
@@ -73,19 +73,16 @@ class _RegisterPageState extends State<RegisterPage> {
       setState(() => _isLoading = true);
 
       try {
-        // Criar usuário no Firebase Auth
         UserCredential userCredential = await FirebaseAuth.instance
             .createUserWithEmailAndPassword(
               email: _emailController.text.trim(),
               password: _senhaController.text.trim(),
             );
 
-        // Opcional: Atualizar o nome do usuário no perfil do Firebase
         await userCredential.user?.updateDisplayName(
           _nomeController.text.trim(),
         );
 
-        // Salvar dados adicionais no Cloud Firestore
         await FirebaseFirestore.instance
             .collection('users')
             .doc(userCredential.user!.uid)
@@ -114,7 +111,6 @@ class _RegisterPageState extends State<RegisterPage> {
             ),
           );
 
-          // Navegar para a Home
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (_) => const MainNavigationPage()),

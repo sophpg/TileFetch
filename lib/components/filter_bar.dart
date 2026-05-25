@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
 import '../models/post_model.dart';
 import '../theme/index.dart';
-import '../theme/app_helpers.dart';
 
+const Map<String, Color> _commonColorOptions = {
+  'Vermelho': Color(0xFFFF4D4D),
+  'Laranja': Color(0xFFFFA93F),
+  'Amarelo': Color(0xFFFFE066),
+  'Verde': Color(0xFF4DFF7A),
+  'Azul': Color(0xFF4DA4FF),
+  'Roxo': Color(0xFFB35CFF),
+  'Rosa': Color(0xFFFF6EC7),
+};
 class FilterBar extends StatefulWidget {
   final Function(Map<String, dynamic>) onFilterChange;
   final List<String> availableColors;
@@ -25,14 +33,14 @@ class _FilterBarState extends State<FilterBar> {
   String? _selectedColor;
   Resolucao? _selectedResolution;
   String _selectedOrder = 'recente';
-  List<String> _selectedTags = [];
+  String? _selectedTag;
 
   void _updateFilters() {
     widget.onFilterChange({
       'color': _selectedColor,
       'resolution': _selectedResolution,
       'order': _selectedOrder,
-      'tags': _selectedTags,
+      'tags': _selectedTag != null ? <String>[_selectedTag!] : <String>[],
     });
   }
 
@@ -46,83 +54,94 @@ class _FilterBarState extends State<FilterBar> {
       ),
       child: Row(
         children: [
-          _buildOrderButton('recente', 'Recentes'),
+          _buildOrderDropdown(),
           const SizedBox(width: AppSpacing.md),
-          _buildOrderButton('popular', 'Populares'),
+          if (widget.availableColors.isNotEmpty) _buildColorFilter(),
           const SizedBox(width: AppSpacing.md),
-          _buildOrderButton('curtidas', 'Mais Curtidos'),
-          if (widget.availableColors.isNotEmpty) ...[
-            const SizedBox(width: AppSpacing.md),
-            _buildColorFilter(),
-          ],
-          if (widget.availableResolutions.isNotEmpty) ...[
-            const SizedBox(width: AppSpacing.md),
-            _buildResolutionFilter(),
-          ],
-          if (widget.availableTags.isNotEmpty) ...[
-            const SizedBox(width: AppSpacing.md),
-            _buildTagFilter(),
-          ],
+          if (widget.availableResolutions.isNotEmpty) _buildResolutionFilter(),
+          const SizedBox(width: AppSpacing.md),
+          if (widget.availableTags.isNotEmpty) _buildTagFilter(),
         ],
       ),
     );
   }
 
-  Widget _buildOrderButton(String value, String label) {
-    final isSelected = _selectedOrder == value;
-    return GestureDetector(
-      onTap: () {
+  Widget _buildOrderDropdown() {
+    return DropdownButton<String>(
+      value: _selectedOrder,
+      dropdownColor: AppColors.fieldBackground,
+      icon: const Icon(Icons.arrow_drop_down, color: AppColors.textSecondary),
+      underline: Container(
+        height: 1,
+        color: AppColors.borderDefault,
+      ),
+      items: const [
+        DropdownMenuItem(value: 'recente', child: Text('Recentes')),
+        DropdownMenuItem(value: 'popular', child: Text('Populares')),
+        DropdownMenuItem(value: 'curtidas', child: Text('Mais Curtidos')),
+      ],
+      onChanged: (value) {
+        if (value == null) return;
         setState(() => _selectedOrder = value);
         _updateFilters();
       },
-      child: AppHelpers.filterChip(
-        label: label,
-        isSelected: isSelected,
-        onTap: () {},
-      ),
     );
   }
 
   Widget _buildColorFilter() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: widget.availableColors
-            .take(6)
-            .map((color) {
-              final isSelected = _selectedColor == color;
-              return Padding(
-                padding: const EdgeInsets.only(right: AppSpacing.xs),
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _selectedColor = isSelected ? null : color;
-                    });
-                    _updateFilters();
-                  },
-                  child: Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      color: Color(int.parse('0xFF${color.replaceFirst('#', '')}')),
-                      border: Border.all(
-                        color: isSelected
-                            ? AppColors.primary
-                            : AppColors.borderDefault,
-                        width: isSelected ? 2.0 : 0.8,
-                      ),
-                    ),
+    return DropdownButton<String?>(
+      value: _selectedColor,
+      hint: Text(
+        'Cor',
+        style: AppFonts.body(size: 12, color: AppColors.textSecondary),
+      ),
+      dropdownColor: AppColors.fieldBackground,
+      icon: const Icon(Icons.arrow_drop_down, color: AppColors.textSecondary),
+      underline: Container(
+        height: 1,
+        color: AppColors.borderDefault,
+      ),
+      items: <DropdownMenuItem<String?>>[
+        DropdownMenuItem<String?>(
+          value: null,
+          child: Text(
+            'Cores',
+            style: AppFonts.body(size: 12, color: AppColors.textPrimary),
+          ),
+        ),
+        ..._commonColorOptions.entries.map((entry) {
+          return DropdownMenuItem<String?>(
+            value: entry.key,
+            child: Row(
+              children: [
+                Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: entry.value,
+                    borderRadius: BorderRadius.circular(3),
+                    border: Border.all(color: AppColors.borderDefault),
                   ),
                 ),
-              );
-            })
-            .toList(),
-      ),
+                const SizedBox(width: AppSpacing.xs),
+                Text(
+                  entry.key,
+                  style: AppFonts.body(size: 12, color: AppColors.textPrimary),
+                ),
+              ],
+            ),
+          );
+        }),
+      ],
+      onChanged: (value) {
+        setState(() => _selectedColor = value);
+        _updateFilters();
+      },
     );
   }
 
   Widget _buildResolutionFilter() {
-    return DropdownButton<Resolucao>(
+    return DropdownButton<Resolucao?>(
       value: _selectedResolution,
       hint: Text(
         'Resolução',
@@ -134,15 +153,24 @@ class _FilterBarState extends State<FilterBar> {
         height: 1,
         color: AppColors.borderDefault,
       ),
-      items: widget.availableResolutions.map((res) {
-        return DropdownMenuItem<Resolucao>(
-          value: res,
+      items: <DropdownMenuItem<Resolucao?>>[
+        DropdownMenuItem<Resolucao?>(
+          value: null,
           child: Text(
-            res.label,
+            'Resolução',
             style: AppFonts.body(size: 12, color: AppColors.textPrimary),
           ),
-        );
-      }).toList(),
+        ),
+        ...widget.availableResolutions.map((res) {
+          return DropdownMenuItem<Resolucao?>(
+            value: res,
+            child: Text(
+              res.label,
+              style: AppFonts.body(size: 12, color: AppColors.textPrimary),
+            ),
+          );
+        }),
+      ],
       onChanged: (value) {
         setState(() => _selectedResolution = value);
         _updateFilters();
@@ -151,55 +179,40 @@ class _FilterBarState extends State<FilterBar> {
   }
 
   Widget _buildTagFilter() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: widget.availableTags
-            .take(4)
-            .map((tag) {
-              final isSelected = _selectedTags.contains(tag);
-              return Padding(
-                padding: const EdgeInsets.only(right: AppSpacing.xs),
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      if (isSelected) {
-                        _selectedTags.remove(tag);
-                      } else {
-                        _selectedTags.add(tag);
-                      }
-                    });
-                    _updateFilters();
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.xs,
-                      vertical: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: isSelected
-                            ? AppColors.primary
-                            : AppColors.borderDefault,
-                        width: 1.0,
-                      ),
-                      color: AppColors.background,
-                    ),
-                    child: Text(
-                      tag,
-                      style: AppFonts.body(
-                        size: 10,
-                        color: isSelected
-                            ? AppColors.primary
-                            : AppColors.textSecondary,
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            })
-            .toList(),
+    return DropdownButton<String?>(
+      value: _selectedTag,
+      hint: Text(
+        'Tag',
+        style: AppFonts.body(size: 12, color: AppColors.textSecondary),
       ),
+      dropdownColor: AppColors.fieldBackground,
+      icon: const Icon(Icons.arrow_drop_down, color: AppColors.textSecondary),
+      underline: Container(
+        height: 1,
+        color: AppColors.borderDefault,
+      ),
+      items: <DropdownMenuItem<String?>>[
+        DropdownMenuItem<String?>(
+          value: null,
+          child: Text(
+            'Tag',
+            style: AppFonts.body(size: 12, color: AppColors.textPrimary),
+          ),
+        ),
+        ...widget.availableTags.map((tag) {
+          return DropdownMenuItem<String?>(
+            value: tag,
+            child: Text(
+              tag,
+              style: AppFonts.body(size: 12, color: AppColors.textPrimary),
+            ),
+          );
+        }),
+      ],
+      onChanged: (value) {
+        setState(() => _selectedTag = value);
+        _updateFilters();
+      },
     );
   }
 }

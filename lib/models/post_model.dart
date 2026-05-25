@@ -3,10 +3,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Post {
   final String id;
   final String uid;
+  final String? authorUid;
   final String titulo;
   final String descricao;
   final String imagemUrl;
   final String thumbnail;
+  final String? imagemBase64;
+  final String? thumbnailBase64;
   final List<String> cores;
   final Resolucao resolucao;
   final List<String> tags;
@@ -20,10 +23,13 @@ class Post {
   Post({
     required this.id,
     required this.uid,
+    this.authorUid,
     required this.titulo,
     required this.descricao,
     required this.imagemUrl,
     required this.thumbnail,
+    this.imagemBase64,
+    this.thumbnailBase64,
     required this.cores,
     required this.resolucao,
     required this.tags,
@@ -45,6 +51,9 @@ class Post {
       descricao: data['descricao'] ?? '',
       imagemUrl: data['imagemUrl'] ?? '',
       thumbnail: data['thumbnail'] ?? '',
+      imagemBase64: data['imagemBase64'] as String?,
+      thumbnailBase64: data['thumbnailBase64'] as String?,
+      authorUid: data['authorUid'] as String?,
       cores: List<String>.from(data['cores'] ?? []),
       resolucao: Resolucao.fromMap(data['resolucao'] ?? {}),
       tags: List<String>.from(data['tags'] ?? []),
@@ -64,6 +73,9 @@ class Post {
       'descricao': descricao,
       'imagemUrl': imagemUrl,
       'thumbnail': thumbnail,
+      'imagemBase64': imagemBase64,
+      'thumbnailBase64': thumbnailBase64,
+      'authorUid': authorUid,
       'cores': cores,
       'resolucao': resolucao.toMap(),
       'tags': tags,
@@ -78,10 +90,13 @@ class Post {
   Post copyWith({
     String? id,
     String? uid,
+    String? authorUid,
     String? titulo,
     String? descricao,
     String? imagemUrl,
     String? thumbnail,
+    String? imagemBase64,
+    String? thumbnailBase64,
     List<String>? cores,
     Resolucao? resolucao,
     List<String>? tags,
@@ -95,10 +110,13 @@ class Post {
     return Post(
       id: id ?? this.id,
       uid: uid ?? this.uid,
+      authorUid: authorUid ?? this.authorUid,
       titulo: titulo ?? this.titulo,
       descricao: descricao ?? this.descricao,
       imagemUrl: imagemUrl ?? this.imagemUrl,
       thumbnail: thumbnail ?? this.thumbnail,
+      imagemBase64: imagemBase64 ?? this.imagemBase64,
+      thumbnailBase64: thumbnailBase64 ?? this.thumbnailBase64,
       cores: cores ?? this.cores,
       resolucao: resolucao ?? this.resolucao,
       tags: tags ?? this.tags,
