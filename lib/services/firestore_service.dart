@@ -179,10 +179,16 @@ class FirestoreService {
         final likeSnapshot = await transaction.get(likeRef);
 
         if (likeSnapshot.exists) {
-          transaction.update(postRef, {'curtidas': (post.curtidas - 1).clamp(0, 999999)});
+          transaction.update(postRef, {
+            'curtidas': (post.curtidas - 1).clamp(0, 999999),
+            'dataAtualizacao': FieldValue.serverTimestamp(),
+          });
           transaction.delete(likeRef);
         } else {
-          transaction.update(postRef, {'curtidas': post.curtidas + 1});
+          transaction.update(postRef, {
+            'curtidas': post.curtidas + 1,
+            'dataAtualizacao': FieldValue.serverTimestamp(),
+          });
           transaction.set(likeRef, {
             'postId': postId,
             'usuarioId': userId,
@@ -214,6 +220,38 @@ class FirestoreService {
       return snapshot.docs.map((d) => (d.data()['postId'] as String)).toList();
     } catch (e) {
       print('Erro ao buscar curtidas do usuário: $e');
+      return [];
+    }
+  }
+
+  Future<List<Post>> getUserLikedPosts(String userId) async {
+    try {
+      final likedIds = await getUserLikedPostIds(userId);
+      if (likedIds.isEmpty) return [];
+
+      // Firestore 'in' query is limited to 10-30 items depending on version.
+      // For now, let's fetch them and filter if there are many, or just do multiple queries.
+      // To keep it simple and handle more than 10, we can fetch all and filter or chunk.
+      
+      List<Post> likedPosts = [];
+      
+      // Chunking by 10
+      for (var i = 0; i < likedIds.length; i += 10) {
+        final chunk = likedIds.sublist(i, i + 10 > likedIds.length ? likedIds.length : i + 10);
+        final snapshot = await _firestore
+            .collection('posts')
+            .where(FieldPath.documentId, whereIn: chunk)
+            .get();
+        
+        likedPosts.addAll(snapshot.docs.map((doc) => Post.fromFirestore(doc).copyWith(isLikedByMe: true)));
+      }
+
+      // Sort by creation date if needed
+      likedPosts.sort((a, b) => b.dataCriacao.compareTo(a.dataCriacao));
+
+      return likedPosts;
+    } catch (e) {
+      print('Erro ao buscar posts curtidos: $e');
       return [];
     }
   }
@@ -295,6 +333,59 @@ class FirestoreService {
     } catch (e) {
       print('Erro ao buscar perfil do usuário: $e');
       return null;
+    }
+  }
+
+  Future<void> saveSearchQuery(String userId, String query) async {
+    try {
+      final historyRef = _firestore.collection('users').doc(userId).collection('search_history');
+      final q = query.trim();
+      if (q.isEmpty) return;
+
+      final existing = await historyRef.where('query', isEqualTo: q).get();
+      for (var doc in existing.docs) {
+        await doc.reference.delete();
+      }
+
+      await historyRef.add({
+        'query': q,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
+      final snapshot = await historyRef.orderBy('timestamp', descending: true).get();
+      if (snapshot.docs.length > 5) {
+        for (var i = 5; i < snapshot.docs.length; i++) {
+          await snapshot.docs[i].reference.delete();
+        }
+      }
+    } catch (e) {
+      print('Erro ao salvar histórico: $e');
+    }
+  }
+
+  Future<List<String>> getSearchHistory(String userId) async {
+    try {
+      final snapshot = await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('search_history')
+          .orderBy('timestamp', descending: true)
+          .get();
+      return snapshot.docs.map((doc) => doc.data()['query'] as String).toList();
+    } catch (e) {
+      print('Erro ao buscar histórico: $e');
+      return [];
+    }
+  }
+
+  Future<void> clearSearchHistory(String userId) async {
+    try {
+      final snapshot = await _firestore.collection('users').doc(userId).collection('search_history').get();
+      for (var doc in snapshot.docs) {
+        await doc.reference.delete();
+      }
+    } catch (e) {
+      print('Erro ao limpar histórico: $e');
     }
   }
 }

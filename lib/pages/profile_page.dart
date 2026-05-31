@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:pixelarticons/pixelarticons.dart';
 import 'login_page.dart';
 import '../theme/index.dart';
 
@@ -625,6 +626,15 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ],
             ),
+          ),
+          IconButton(
+            icon: const Icon(
+              Pixel.logout,
+              color: AppColors.textSecondary,
+              size: 24,
+            ),
+            onPressed: _handleLogout,
+            tooltip: 'Sair',
           ),
         ],
       ),
