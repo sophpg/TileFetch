@@ -1,8 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'firebase_options.dart';
-import 'login_page.dart';
-import 'theme/app_fonts.dart';
+import 'pages/login_page.dart';
+import 'theme/index.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,16 +17,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final baseTheme = ThemeData.dark(useMaterial3: true);
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'TileFetch',
-
-      theme: baseTheme.copyWith(
-        textTheme: AppFonts.appTextTheme(baseTheme.textTheme),
-      ),
-
+      theme: AppTheme.darkTheme(),
       home: const LoginPage(),
     );
   }
