@@ -533,6 +533,41 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  Widget _buildPixelButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 72,
+        height: 72,
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.borderDefault, width: 1.5),
+          color: Colors.transparent,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: AppColors.primary, size: 20),
+            const SizedBox(height: 6),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: AppFonts.body(
+                color: AppColors.textSecondary,
+                size: 9,
+                weight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildHeader() {
     final nome =
         (_userData?['nome'] as String?)?.isNotEmpty == true
@@ -626,43 +661,37 @@ class _ProfilePageState extends State<ProfilePage> {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 4),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        bio.isNotEmpty ? bio : 'Adicione uma bio',
-                        style: AppFonts.body(
-                          color: bio.isNotEmpty
-                              ? AppColors.textSecondary
-                              : AppColors.textDisabled,
-                          size: 13,
-                        ),
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    GestureDetector(
-                      onTap: _showEditProfileDialog,
-                      child: Text(
-                        '+',
-                        style: AppFonts.body(
-                          color: AppColors.primary,
-                          size: 18,
-                          weight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
+                Text(
+                  bio.isNotEmpty ? bio : 'Adicione uma bio',
+                  style: AppFonts.body(
+                    color: bio.isNotEmpty
+                        ? AppColors.textSecondary
+                        : AppColors.textDisabled,
+                    size: 13,
+                  ),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
           ),
-          IconButton(
-            icon: const Icon(Pixel.logout, color: AppColors.textSecondary, size: 24),
-            onPressed: _handleLogout,
-            tooltip: 'Sair',
+
+          const SizedBox(width: 12),
+
+          Row(
+            children: [
+              _buildPixelButton(
+                icon: Icons.edit_outlined,
+                label: 'EDITAR\nPERFIL',
+                onTap: _showEditProfileDialog,
+              ),
+              const SizedBox(width: 8),
+              _buildPixelButton(
+                icon: Pixel.logout,
+                label: 'SAIR',
+                onTap: _handleLogout,
+              ),
+            ],
           ),
         ],
       ),
