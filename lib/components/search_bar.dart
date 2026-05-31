@@ -1,19 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:pixelarticons/pixelarticons.dart';
 import '../theme/index.dart';
+import '../services/search_history_service.dart';
 
-class HomeSearchBar extends StatefulWidget {
+class HomeSearchBar extends StatefulWidget implements PreferredSizeWidget {
   final Function(String) onSearch;
   final Function()? onClearSearch;
+  final Function(String)? onSubmitted;
+  final VoidCallback? onTap;
 
-  const HomeSearchBar({super.key, required this.onSearch, this.onClearSearch});
+  const HomeSearchBar({
+    super.key,
+    required this.onSearch,
+    this.onClearSearch,
+    this.onSubmitted,
+    this.onTap,
+  });
 
   @override
   State<HomeSearchBar> createState() => _HomeSearchBarState();
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
 class _HomeSearchBarState extends State<HomeSearchBar> {
   late TextEditingController _controller;
+  final SearchHistoryService _historyService = SearchHistoryService();
 
   @override
   void initState() {
@@ -30,6 +43,13 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
     super.dispose();
   }
 
+  void _handleSubmitted(String value) {
+    if (value.trim().isNotEmpty) {
+      _historyService.addSearch(value);
+      widget.onSubmitted?.call(value);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return AppBar(
@@ -39,7 +59,10 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
       title: Container(
         height: 40,
         decoration: BoxDecoration(
-          border: Border.all(color: AppColors.borderDefault, width: AppBorders.defaultBorderWidth),
+          border: Border.all(
+            color: AppColors.borderDefault,
+            width: AppBorders.defaultBorderWidth,
+          ),
           color: AppColors.fieldBackground,
         ),
         child: Row(
@@ -66,22 +89,22 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.zero,
                 ),
+                onSubmitted: _handleSubmitted,
+                onTap: widget.onTap,
               ),
             ),
             if (_controller.text.isNotEmpty)
-              GestureDetector(
-                onTap: () {
+              IconButton(
+                padding: EdgeInsets.zero,
+                icon: const Icon(
+                  Pixel.close,
+                  color: AppColors.textSecondary,
+                  size: 18,
+                ),
+                onPressed: () {
                   _controller.clear();
                   widget.onClearSearch?.call();
                 },
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-                  child: Icon(
-                    Pixel.close,
-                    color: AppColors.textSecondary,
-                    size: 18,
-                  ),
-                ),
               ),
           ],
         ),

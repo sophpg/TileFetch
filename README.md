@@ -182,9 +182,9 @@ flutter pub get
 
 **Sophia Pellizon**
 - GitHub: [@sophpg](https://github.com/sophpg)
-- Email: 
+- Email: sophiapgouveia@gmail.com
 
 **Victor Leal**
 - GitHub: [@VictorAffonsoLeal](https://github.com/VictorAffonsoLeal)
-- Email: 
+- Email: victoraffonsoleal7@gmail.com
 ---

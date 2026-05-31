@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:pixelarticons/pixelarticons.dart';
 import 'login_page.dart';
 import '../theme/index.dart';
 
@@ -34,10 +35,11 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _loadUserData() async {
     if (_currentUser == null) return;
     try {
-      final doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(_currentUser!.uid)
-          .get();
+      final doc =
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(_currentUser!.uid)
+              .get();
       if (mounted) {
         setState(() {
           _userData = doc.data();
@@ -47,9 +49,9 @@ class _ProfilePageState extends State<ProfilePage> {
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao carregar perfil: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Erro ao carregar perfil: $e')));
       }
     }
   }
@@ -66,18 +68,15 @@ class _ProfilePageState extends State<ProfilePage> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao fazer logout: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Erro ao fazer logout: $e')));
       }
     }
   }
 
   // ── Salva nome + bio no Firestore ──────────────────────────────────────────
-  Future<void> _saveProfile({
-    required String nome,
-    required String bio,
-  }) async {
+  Future<void> _saveProfile({required String nome, required String bio}) async {
     if (_currentUser == null) return;
     try {
       await FirebaseFirestore.instance
@@ -90,9 +89,9 @@ class _ProfilePageState extends State<ProfilePage> {
       });
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao salvar perfil: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Erro ao salvar perfil: $e')));
       }
     }
   }
@@ -134,7 +133,8 @@ class _ProfilePageState extends State<ProfilePage> {
       final sizeKB = imageBytes.length / 1024;
       if (sizeKB > 700) {
         throw Exception(
-            'Imagem muito grande (${sizeKB.toStringAsFixed(0)} KB). Tente uma foto menor.');
+          'Imagem muito grande (${sizeKB.toStringAsFixed(0)} KB). Tente uma foto menor.',
+        );
       }
 
       final base64Str = base64Encode(imageBytes);
@@ -153,9 +153,9 @@ class _ProfilePageState extends State<ProfilePage> {
     } catch (e) {
       if (mounted) {
         setState(() => _isUploadingAvatar = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Erro: $e')));
       }
     }
   }
@@ -185,8 +185,10 @@ class _ProfilePageState extends State<ProfilePage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 child: Text(
                   'foto de perfil',
                   style: AppFonts.body(
@@ -197,12 +199,18 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
               const Divider(
-                  height: 1, thickness: 0.5, color: AppColors.borderDefault),
+                height: 1,
+                thickness: 0.5,
+                color: AppColors.borderDefault,
+              ),
 
               // Galeria
               ListTile(
-                leading: const Icon(Icons.photo_library_outlined,
-                    color: AppColors.textPrimary, size: 20),
+                leading: const Icon(
+                  Icons.photo_library_outlined,
+                  color: AppColors.textPrimary,
+                  size: 20,
+                ),
                 title: Text(
                   'escolher da galeria',
                   style: AppFonts.body(color: AppColors.textPrimary, size: 13),
@@ -215,8 +223,11 @@ class _ProfilePageState extends State<ProfilePage> {
 
               // Câmera
               ListTile(
-                leading: const Icon(Icons.camera_alt_outlined,
-                    color: AppColors.textPrimary, size: 20),
+                leading: const Icon(
+                  Icons.camera_alt_outlined,
+                  color: AppColors.textPrimary,
+                  size: 20,
+                ),
                 title: Text(
                   'tirar foto',
                   style: AppFonts.body(color: AppColors.textPrimary, size: 13),
@@ -237,155 +248,179 @@ class _ProfilePageState extends State<ProfilePage> {
 
   // ── Dialog: editar nome e bio ──────────────────────────────────────────────
   void _showEditProfileDialog() {
-    final nomeCtrl =
-        TextEditingController(text: _userData?['nome'] ?? '');
-    final bioCtrl =
-        TextEditingController(text: _userData?['bio'] ?? '');
+    final nomeCtrl = TextEditingController(text: _userData?['nome'] ?? '');
+    final bioCtrl = TextEditingController(text: _userData?['bio'] ?? '');
     bool saving = false;
 
     showDialog(
       context: context,
       barrierColor: Colors.black87,
       builder: (ctx) {
-        return StatefulBuilder(builder: (ctx, setDialogState) {
-          return Dialog(
-            backgroundColor: AppColors.fieldBackground,
-            shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.zero),
-            child: Container(
-              decoration: BoxDecoration(
-                border:
-                    Border.all(color: AppColors.borderDefault, width: 1),
+        return StatefulBuilder(
+          builder: (ctx, setDialogState) {
+            return Dialog(
+              backgroundColor: AppColors.fieldBackground,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.zero,
               ),
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'editar perfil',
-                    style: AppFonts.body(
-                      color: AppColors.primary,
-                      size: 14,
-                      weight: FontWeight.bold,
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.borderDefault, width: 1),
+                ),
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'editar perfil',
+                      style: AppFonts.body(
+                        color: AppColors.primary,
+                        size: 14,
+                        weight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-                  Text(
-                    'nome',
-                    style: AppFonts.body(
-                        color: AppColors.textSecondary, size: 11),
-                  ),
-                  const SizedBox(height: 6),
-                  TextField(
-                    controller: nomeCtrl,
-                    style: AppFonts.body(
-                        color: AppColors.textPrimary, size: 13),
-                    cursorColor: AppColors.primary,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.black,
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.zero,
-                        borderSide: BorderSide(
-                            color: AppColors.borderDefault, width: 1),
+                    Text(
+                      'nome',
+                      style: AppFonts.body(
+                        color: AppColors.textSecondary,
+                        size: 11,
                       ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.zero,
-                        borderSide: BorderSide(
-                            color: AppColors.primary, width: 1.5),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 10),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  Text(
-                    'bio',
-                    style: AppFonts.body(
-                        color: AppColors.textSecondary, size: 11),
-                  ),
-                  const SizedBox(height: 6),
-                  TextField(
-                    controller: bioCtrl,
-                    maxLines: 3,
-                    style: AppFonts.body(
-                        color: AppColors.textPrimary, size: 13),
-                    cursorColor: AppColors.primary,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.black,
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.zero,
-                        borderSide: BorderSide(
-                            color: AppColors.borderDefault, width: 1),
+                    const SizedBox(height: 6),
+                    TextField(
+                      controller: nomeCtrl,
+                      style: AppFonts.body(
+                        color: AppColors.textPrimary,
+                        size: 13,
                       ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.zero,
-                        borderSide: BorderSide(
-                            color: AppColors.primary, width: 1.5),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 10),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextButton(
-                          style: AppButtons.secondaryButtonStyle(),
-                          onPressed:
-                              saving ? null : () => Navigator.pop(ctx),
-                          child: Text(
-                            'cancelar',
-                            style: AppFonts.body(
-                                color: AppColors.textSecondary, size: 12),
+                      cursorColor: AppColors.primary,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.black,
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.zero,
+                          borderSide: BorderSide(
+                            color: AppColors.borderDefault,
+                            width: 1,
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: TextButton(
-                          style: AppButtons.primaryButtonStyle(),
-                          onPressed: saving
-                              ? null
-                              : () async {
-                                  setDialogState(() => saving = true);
-                                  await _saveProfile(
-                                    nome: nomeCtrl.text.trim(),
-                                    bio: bioCtrl.text.trim(),
-                                  );
-                                  if (ctx.mounted) Navigator.pop(ctx);
-                                },
-                          child: saving
-                              ? const SizedBox(
-                                  height: 14,
-                                  width: 14,
-                                  child: CircularProgressIndicator(
-                                    color: AppColors.primary,
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : Text(
-                                  'salvar',
-                                  style: AppFonts.body(
-                                      color: AppColors.primary,
-                                      size: 12,
-                                      weight: FontWeight.bold),
-                                ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.zero,
+                          borderSide: BorderSide(
+                            color: AppColors.primary,
+                            width: 1.5,
+                          ),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
                         ),
                       ),
-                    ],
-                  ),
-                ],
+                    ),
+                    const SizedBox(height: 16),
+
+                    Text(
+                      'bio',
+                      style: AppFonts.body(
+                        color: AppColors.textSecondary,
+                        size: 11,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    TextField(
+                      controller: bioCtrl,
+                      maxLines: 3,
+                      style: AppFonts.body(
+                        color: AppColors.textPrimary,
+                        size: 13,
+                      ),
+                      cursorColor: AppColors.primary,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.black,
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.zero,
+                          borderSide: BorderSide(
+                            color: AppColors.borderDefault,
+                            width: 1,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.zero,
+                          borderSide: BorderSide(
+                            color: AppColors.primary,
+                            width: 1.5,
+                          ),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextButton(
+                            style: AppButtons.secondaryButtonStyle(),
+                            onPressed: saving ? null : () => Navigator.pop(ctx),
+                            child: Text(
+                              'cancelar',
+                              style: AppFonts.body(
+                                color: AppColors.textSecondary,
+                                size: 12,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextButton(
+                            style: AppButtons.primaryButtonStyle(),
+                            onPressed:
+                                saving
+                                    ? null
+                                    : () async {
+                                      setDialogState(() => saving = true);
+                                      await _saveProfile(
+                                        nome: nomeCtrl.text.trim(),
+                                        bio: bioCtrl.text.trim(),
+                                      );
+                                      if (ctx.mounted) Navigator.pop(ctx);
+                                    },
+                            child:
+                                saving
+                                    ? const SizedBox(
+                                      height: 14,
+                                      width: 14,
+                                      child: CircularProgressIndicator(
+                                        color: AppColors.primary,
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                    : Text(
+                                      'salvar',
+                                      style: AppFonts.body(
+                                        color: AppColors.primary,
+                                        size: 12,
+                                        weight: FontWeight.bold,
+                                      ),
+                                    ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          );
-        });
+            );
+          },
+        );
       },
     );
   }
@@ -403,9 +438,7 @@ class _ProfilePageState extends State<ProfilePage> {
               filterQuality: FilterQuality.high,
             ),
           ),
-          Positioned.fill(
-            child: Container(color: AppColors.overlayDark),
-          ),
+          Positioned.fill(child: Container(color: AppColors.overlayDark)),
 
           if (_isLoading)
             const Center(
@@ -435,7 +468,9 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 12),
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
                           child: Text(
                             'Meus pixels',
                             style: AppFonts.body(
@@ -467,23 +502,24 @@ class _ProfilePageState extends State<ProfilePage> {
                         (context, index) => Image.network(
                           _myPosts[index],
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Container(
-                            color: AppColors.fieldBackground,
-                            child: const Icon(
-                              Icons.broken_image,
-                              color: AppColors.textDisabled,
-                            ),
-                          ),
+                          errorBuilder:
+                              (_, __, ___) => Container(
+                                color: AppColors.fieldBackground,
+                                child: const Icon(
+                                  Icons.broken_image,
+                                  color: AppColors.textDisabled,
+                                ),
+                              ),
                         ),
                         childCount: _myPosts.length,
                       ),
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        crossAxisSpacing: 2,
-                        mainAxisSpacing: 2,
-                        childAspectRatio: 0.65,
-                      ),
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 2,
+                            mainAxisSpacing: 2,
+                            childAspectRatio: 0.65,
+                          ),
                     ),
                 ],
               ),
@@ -494,9 +530,10 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildHeader() {
-    final nome = (_userData?['nome'] as String?)?.isNotEmpty == true
-        ? _userData!['nome'] as String
-        : (_currentUser!.displayName ?? 'Sem nome');
+    final nome =
+        (_userData?['nome'] as String?)?.isNotEmpty == true
+            ? _userData!['nome'] as String
+            : (_currentUser!.displayName ?? 'Sem nome');
     final bio = (_userData?['bio'] as String?) ?? '';
     final base64Str = _userData?['avatarBase64'] as String?;
 
@@ -525,33 +562,33 @@ class _ProfilePageState extends State<ProfilePage> {
                   height: 72,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border:
-                        Border.all(color: AppColors.primary, width: 2),
+                    border: Border.all(color: AppColors.primary, width: 2),
                     color: AppColors.fieldBackground,
                   ),
                   child: ClipOval(
-                    child: _isUploadingAvatar
-                        ? const Center(
-                            child: SizedBox(
-                              width: 28,
-                              height: 28,
-                              child: CircularProgressIndicator(
-                                color: AppColors.primary,
-                                strokeWidth: 2.5,
+                    child:
+                        _isUploadingAvatar
+                            ? const Center(
+                              child: SizedBox(
+                                width: 28,
+                                height: 28,
+                                child: CircularProgressIndicator(
+                                  color: AppColors.primary,
+                                  strokeWidth: 2.5,
+                                ),
                               ),
-                            ),
-                          )
-                        : avatarBytes != null
+                            )
+                            : avatarBytes != null
                             ? Image.memory(
-                                avatarBytes,
-                                key: ValueKey(base64Str!.hashCode),
-                                fit: BoxFit.cover,
-                              )
+                              avatarBytes,
+                              key: ValueKey(base64Str!.hashCode),
+                              fit: BoxFit.cover,
+                            )
                             : const Icon(
-                                Icons.account_circle,
-                                color: AppColors.primary,
-                                size: 40,
-                              ),
+                              Icons.account_circle,
+                              color: AppColors.primary,
+                              size: 40,
+                            ),
                   ),
                 ),
                 if (!_isUploadingAvatar)
@@ -565,7 +602,9 @@ class _ProfilePageState extends State<ProfilePage> {
                         color: AppColors.primary,
                         shape: BoxShape.circle,
                         border: Border.all(
-                            color: AppColors.background, width: 1.5),
+                          color: AppColors.background,
+                          width: 1.5,
+                        ),
                       ),
                       child: const Icon(
                         Icons.edit,
@@ -600,9 +639,10 @@ class _ProfilePageState extends State<ProfilePage> {
                       child: Text(
                         bio.isNotEmpty ? bio : 'Adicione uma bio',
                         style: AppFonts.body(
-                          color: bio.isNotEmpty
-                              ? AppColors.textSecondary
-                              : AppColors.textDisabled,
+                          color:
+                              bio.isNotEmpty
+                                  ? AppColors.textSecondary
+                                  : AppColors.textDisabled,
                           size: 13,
                         ),
                         maxLines: 3,
@@ -625,6 +665,15 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ],
             ),
+          ),
+          IconButton(
+            icon: const Icon(
+              Pixel.logout,
+              color: AppColors.textSecondary,
+              size: 24,
+            ),
+            onPressed: _handleLogout,
+            tooltip: 'Sair',
           ),
         ],
       ),

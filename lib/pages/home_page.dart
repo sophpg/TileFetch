@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:tilefetch/models/post_model.dart';
 import 'package:tilefetch/services/firestore_service.dart';
@@ -7,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tilefetch/components/search_bar.dart';
 import 'package:tilefetch/components/filter_bar.dart';
 import 'package:tilefetch/components/post_card.dart';
+import 'package:tilefetch/components/post_detail_dialog.dart';
 import 'package:tilefetch/pages/profile_page.dart';
 import 'package:tilefetch/theme/index.dart';
 
@@ -126,6 +125,11 @@ class _HomePageState extends State<HomePage> {
       _searchQuery = query;
       _applyFilters();
     });
+
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null && query.trim().isNotEmpty) {
+      _firestoreService.saveSearchQuery(user.uid, query);
+    }
   }
 
   void _handleFilterChange(Map<String, dynamic> filters) {
@@ -259,210 +263,11 @@ class _HomePageState extends State<HomePage> {
       orElse: () => _allPosts.first,
     );
 
-    final userId =
-        post.authorUid?.isNotEmpty == true ? post.authorUid! : post.uid;
-    final userProfile = await _firestoreService.getUserProfile(userId);
-    final authorName =
-        userProfile?['nome'] as String? ??
-        userProfile?['email'] as String? ??
-        userId;
-
-    if (!mounted) return;
-
-    final likedNotifier = ValueNotifier<bool>(post.isLikedByMe);
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return Dialog(
-          backgroundColor: AppColors.fieldBackground,
-          insetPadding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.lg,
-            vertical: AppSpacing.lg,
-          ),
-          shape: RoundedRectangleBorder(
-            side: BorderSide(color: AppColors.borderDefault, width: 1),
-            borderRadius: BorderRadius.circular(AppSpacing.radiusMedium),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  post.titulo,
-                  style: AppFonts.body(color: AppColors.textPrimary, size: 32),
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                AppHelpers.borderedContainer(
-                  padding: EdgeInsets.zero,
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxHeight: MediaQuery.of(context).size.height * 0.6,
-                    ),
-                    child: Center(
-                      child:
-                          post.imagemUrl.isNotEmpty
-                              ? InteractiveViewer(
-                                child: Image.network(
-                                  post.imagemUrl,
-                                  fit: BoxFit.contain,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Container(
-                                      color: AppColors.fieldBackground,
-                                      child: const Icon(
-                                        Icons.broken_image,
-                                        color: AppColors.textSecondary,
-                                      ),
-                                    );
-                                  },
-                                ),
-                              )
-                              : (post.imagemBase64 != null
-                                  ? Image.memory(
-                                    base64Decode(post.imagemBase64!),
-                                    fit: BoxFit.contain,
-                                  )
-                                  : (post.thumbnail.isNotEmpty
-                                      ? InteractiveViewer(
-                                        child: Image.network(
-                                          post.thumbnail,
-                                          fit: BoxFit.contain,
-                                          errorBuilder: (
-                                            context,
-                                            error,
-                                            stackTrace,
-                                          ) {
-                                            return Container(
-                                              color: AppColors.fieldBackground,
-                                              child: const Icon(
-                                                Icons.broken_image,
-                                                color: AppColors.textSecondary,
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      )
-                                      : Container(
-                                        color: AppColors.fieldBackground,
-                                        child: const Icon(
-                                          Icons.broken_image,
-                                          color: AppColors.textSecondary,
-                                        ),
-                                      ))),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.md),
-                Text(
-                  'Criado por: $authorName',
-                  style: AppFonts.body(
-                    color: AppColors.textPrimary,
-                    weight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                Text(
-                  post.descricao,
-                  style: AppFonts.body(color: AppColors.textSecondary),
-                ),
-                if (post.tags.isNotEmpty) ...[
-                  const SizedBox(height: AppSpacing.md),
-                  Text(
-                    'Tags: ${post.tags.join(', ')}',
-                    style: AppFonts.body(color: AppColors.textSecondary),
-                  ),
-                ],
-                const SizedBox(height: AppSpacing.md),
-                Text(
-                  'Resolução: ${post.resolucao.largura} x ${post.resolucao.altura}',
-                  style: AppFonts.body(color: AppColors.textSecondary),
-                ),
-                const SizedBox(height: AppSpacing.md),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    AppHelpers.styledButton(
-                      label: 'Fechar',
-                      borderColor: AppColors.primary,
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                    StatefulBuilder(
-                      builder: (context, setDialogState) {
-                        return ValueListenableBuilder<bool>(
-                          valueListenable: likedNotifier,
-                          builder: (context, liked, child) {
-                            return IconButton(
-                              icon: Icon(
-                                liked ? Icons.favorite : Icons.favorite_border,
-                                color: AppColors.primary,
-                              ),
-                              onPressed: () async {
-                                final user = FirebaseAuth.instance.currentUser;
-                                if (user == null) {
-                                  if (mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Faça login para curtir.'),
-                                      ),
-                                    );
-                                  }
-                                  return;
-                                }
-
-                                final likedSuccess = await _firestoreService
-                                    .toggleLike(post.id, user.uid);
-                                if (!likedSuccess) {
-                                  if (mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          'Falha ao atualizar curtida.',
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                  return;
-                                }
-
-                                likedNotifier.value = !liked;
-
-                                setState(() {
-                                  _allPosts =
-                                      _allPosts.map((p) {
-                                        if (p.id == post.id) {
-                                          final isNowLiked = !p.isLikedByMe;
-                                          final curtidas =
-                                              isNowLiked
-                                                  ? p.curtidas + 1
-                                                  : (p.curtidas - 1).clamp(
-                                                    0,
-                                                    999999,
-                                                  );
-                                          return p.copyWith(
-                                            curtidas: curtidas,
-                                            isLikedByMe: isNowLiked,
-                                          );
-                                        }
-                                        return p;
-                                      }).toList();
-                                  _applyFilters();
-                                });
-                              },
-                            );
-                          },
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
+    await PostDetailDialog.show(context, post, _firestoreService, () {
+      setState(() {
+        _loadInitialData();
+      });
+    });
   }
 
   Future<void> _handleLike(String postId) async {
@@ -512,17 +317,20 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(60),
-        child: HomeSearchBar(
-          onSearch: _handleSearch,
-          onClearSearch: () {
-            setState(() {
-              _searchQuery = '';
-              _applyFilters();
-            });
-          },
-        ),
+      appBar: HomeSearchBar(
+        onSearch: (q) {
+          setState(() {
+            _searchQuery = q;
+            _applyFilters();
+          });
+        },
+        onSubmitted: _handleSearch,
+        onClearSearch: () {
+          setState(() {
+            _searchQuery = '';
+            _applyFilters();
+          });
+        },
       ),
       body: Stack(
         children: [
@@ -542,6 +350,7 @@ class _HomePageState extends State<HomePage> {
                 availableTags: _availableTags,
                 availableResolutions: _availableResolutions,
               ),
+
               Expanded(
                 child:
                     _isLoading
