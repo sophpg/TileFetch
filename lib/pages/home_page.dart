@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:tilefetch/models/post_model.dart';
 import 'package:tilefetch/services/firestore_service.dart';
@@ -10,7 +8,6 @@ import 'package:tilefetch/components/post_card.dart';
 import 'package:tilefetch/components/post_detail_dialog.dart';
 import 'package:tilefetch/pages/profile_page.dart';
 import 'package:tilefetch/theme/index.dart';
-import 'package:tilefetch/components/search_history_list.dart';
 
 const List<String> _commonColorCategories = [
   'Vermelho',
@@ -265,10 +262,10 @@ class _HomePageState extends State<HomePage> {
       (post) => post.id == postId,
       orElse: () => _allPosts.first,
     );
-    
+
     await PostDetailDialog.show(context, post, _firestoreService, () {
       setState(() {
-        _loadInitialData(); // Or just update the local state if preferred
+        _loadInitialData();
       });
     });
   }
@@ -354,43 +351,42 @@ class _HomePageState extends State<HomePage> {
                 availableResolutions: _availableResolutions,
               ),
 
-// ... inside _HomePageState ...
-
               Expanded(
-                child: _isLoading
-                    ? const Center(
-                        child: CircularProgressIndicator(
-                          color: AppColors.primary,
-                        ),
-                      )
-                    : _filteredPosts.isEmpty
-                        ? Center(
-                            child: Text(
-                              'Nenhum post encontrado',
-                              style: AppFonts.body(
-                                color: AppColors.textSecondary,
-                              ),
-                            ),
-                          )
-                        : GridView.builder(
-                            controller: _scrollController,
-                            padding: const EdgeInsets.all(AppSpacing.md),
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 3,
-                                  crossAxisSpacing: AppSpacing.md,
-                                  mainAxisSpacing: AppSpacing.md,
-                                  childAspectRatio: 3 / 4,
-                                ),
-                            itemCount: _filteredPosts.length,
-                            itemBuilder: (context, index) {
-                              return PostCard(
-                                post: _filteredPosts[index],
-                                onTap: _handlePostTap,
-                                onLike: _handleLike,
-                              );
-                            },
+                child:
+                    _isLoading
+                        ? const Center(
+                          child: CircularProgressIndicator(
+                            color: AppColors.primary,
                           ),
+                        )
+                        : _filteredPosts.isEmpty
+                        ? Center(
+                          child: Text(
+                            'Nenhum post encontrado',
+                            style: AppFonts.body(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        )
+                        : GridView.builder(
+                          controller: _scrollController,
+                          padding: const EdgeInsets.all(AppSpacing.md),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 3,
+                                crossAxisSpacing: AppSpacing.md,
+                                mainAxisSpacing: AppSpacing.md,
+                                childAspectRatio: 3 / 4,
+                              ),
+                          itemCount: _filteredPosts.length,
+                          itemBuilder: (context, index) {
+                            return PostCard(
+                              post: _filteredPosts[index],
+                              onTap: _handlePostTap,
+                              onLike: _handleLike,
+                            );
+                          },
+                        ),
               ),
             ],
           ),

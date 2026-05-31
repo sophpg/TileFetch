@@ -34,19 +34,22 @@ class FirestoreService {
         return fetchPostsHome();
       }
 
-      QuerySnapshot snapshot = await _firestore
-          .collection('posts')
-          .where('visibilidade', isEqualTo: 'public')
-          .orderBy('dataCriacao', descending: true)
-          .get();
+      QuerySnapshot snapshot =
+          await _firestore
+              .collection('posts')
+              .where('visibilidade', isEqualTo: 'public')
+              .orderBy('dataCriacao', descending: true)
+              .get();
 
       final lowerQuery = query.toLowerCase();
 
       return snapshot.docs
           .map((doc) => Post.fromFirestore(doc))
-          .where((post) =>
-              post.titulo.toLowerCase().contains(lowerQuery) ||
-              post.descricao.toLowerCase().contains(lowerQuery))
+          .where(
+            (post) =>
+                post.titulo.toLowerCase().contains(lowerQuery) ||
+                post.descricao.toLowerCase().contains(lowerQuery),
+          )
           .toList();
     } catch (e) {
       print('Erro ao buscar posts: $e');
@@ -87,22 +90,27 @@ class FirestoreService {
     int limit = 20,
   }) async {
     try {
-      QuerySnapshot snapshot = await _firestore
-          .collection('posts')
-          .where('visibilidade', isEqualTo: 'public')
-          .orderBy('dataCriacao', descending: true)
-          .get();
+      QuerySnapshot snapshot =
+          await _firestore
+              .collection('posts')
+              .where('visibilidade', isEqualTo: 'public')
+              .orderBy('dataCriacao', descending: true)
+              .get();
 
-      final filtered = snapshot.docs
-          .map((doc) => Post.fromFirestore(doc))
-          .where((post) =>
-              post.resolucao.largura == largura &&
-              post.resolucao.altura == altura)
-          .toList();
+      final filtered =
+          snapshot.docs
+              .map((doc) => Post.fromFirestore(doc))
+              .where(
+                (post) =>
+                    post.resolucao.largura == largura &&
+                    post.resolucao.altura == altura,
+              )
+              .toList();
 
       if (lastDoc != null) {
-        final lastIndex =
-            filtered.indexWhere((post) => post.id == (lastDoc.id));
+        final lastIndex = filtered.indexWhere(
+          (post) => post.id == (lastDoc.id),
+        );
         if (lastIndex != -1 && lastIndex + limit < filtered.length) {
           return filtered.sublist(lastIndex + 1, lastIndex + 1 + limit);
         }
@@ -206,7 +214,8 @@ class FirestoreService {
 
   Future<bool> isPostLikedByUser(String postId, String userId) async {
     try {
-      final doc = await _firestore.collection('curtidas').doc('$postId-$userId').get();
+      final doc =
+          await _firestore.collection('curtidas').doc('$postId-$userId').get();
       return doc.exists;
     } catch (e) {
       print('Erro ao verificar curtida: $e');
@@ -216,7 +225,11 @@ class FirestoreService {
 
   Future<List<String>> getUserLikedPostIds(String userId) async {
     try {
-      final snapshot = await _firestore.collection('curtidas').where('usuarioId', isEqualTo: userId).get();
+      final snapshot =
+          await _firestore
+              .collection('curtidas')
+              .where('usuarioId', isEqualTo: userId)
+              .get();
       return snapshot.docs.map((d) => (d.data()['postId'] as String)).toList();
     } catch (e) {
       print('Erro ao buscar curtidas do usuário: $e');
@@ -229,24 +242,26 @@ class FirestoreService {
       final likedIds = await getUserLikedPostIds(userId);
       if (likedIds.isEmpty) return [];
 
-      // Firestore 'in' query is limited to 10-30 items depending on version.
-      // For now, let's fetch them and filter if there are many, or just do multiple queries.
-      // To keep it simple and handle more than 10, we can fetch all and filter or chunk.
-      
       List<Post> likedPosts = [];
-      
-      // Chunking by 10
+
       for (var i = 0; i < likedIds.length; i += 10) {
-        final chunk = likedIds.sublist(i, i + 10 > likedIds.length ? likedIds.length : i + 10);
-        final snapshot = await _firestore
-            .collection('posts')
-            .where(FieldPath.documentId, whereIn: chunk)
-            .get();
-        
-        likedPosts.addAll(snapshot.docs.map((doc) => Post.fromFirestore(doc).copyWith(isLikedByMe: true)));
+        final chunk = likedIds.sublist(
+          i,
+          i + 10 > likedIds.length ? likedIds.length : i + 10,
+        );
+        final snapshot =
+            await _firestore
+                .collection('posts')
+                .where(FieldPath.documentId, whereIn: chunk)
+                .get();
+
+        likedPosts.addAll(
+          snapshot.docs.map(
+            (doc) => Post.fromFirestore(doc).copyWith(isLikedByMe: true),
+          ),
+        );
       }
 
-      // Sort by creation date if needed
       likedPosts.sort((a, b) => b.dataCriacao.compareTo(a.dataCriacao));
 
       return likedPosts;
@@ -258,10 +273,11 @@ class FirestoreService {
 
   Future<List<String>> getAllColors() async {
     try {
-      QuerySnapshot snapshot = await _firestore
-          .collection('posts')
-          .where('visibilidade', isEqualTo: 'public')
-          .get();
+      QuerySnapshot snapshot =
+          await _firestore
+              .collection('posts')
+              .where('visibilidade', isEqualTo: 'public')
+              .get();
 
       Set<String> colors = {};
       for (var doc in snapshot.docs) {
@@ -278,10 +294,11 @@ class FirestoreService {
 
   Future<List<String>> getAllTags() async {
     try {
-      QuerySnapshot snapshot = await _firestore
-          .collection('posts')
-          .where('visibilidade', isEqualTo: 'public')
-          .get();
+      QuerySnapshot snapshot =
+          await _firestore
+              .collection('posts')
+              .where('visibilidade', isEqualTo: 'public')
+              .get();
 
       Set<String> tags = {};
       for (var doc in snapshot.docs) {
@@ -298,10 +315,11 @@ class FirestoreService {
 
   Future<List<Resolucao>> getAllResolutions() async {
     try {
-      QuerySnapshot snapshot = await _firestore
-          .collection('posts')
-          .where('visibilidade', isEqualTo: 'public')
-          .get();
+      QuerySnapshot snapshot =
+          await _firestore
+              .collection('posts')
+              .where('visibilidade', isEqualTo: 'public')
+              .get();
 
       Set<String> resolutions = {};
       for (var doc in snapshot.docs) {
@@ -309,15 +327,13 @@ class FirestoreService {
         resolutions.add(post.resolucao.label);
       }
 
-      return resolutions
-          .map((r) {
-            final parts = r.split('x');
-            return Resolucao(
-              largura: int.parse(parts[0]),
-              altura: int.parse(parts[1]),
-            );
-          })
-          .toList()
+      return resolutions.map((r) {
+          final parts = r.split('x');
+          return Resolucao(
+            largura: int.parse(parts[0]),
+            altura: int.parse(parts[1]),
+          );
+        }).toList()
         ..sort((a, b) => a.largura.compareTo(b.largura));
     } catch (e) {
       print('Erro ao buscar resoluções: $e');
@@ -338,7 +354,10 @@ class FirestoreService {
 
   Future<void> saveSearchQuery(String userId, String query) async {
     try {
-      final historyRef = _firestore.collection('users').doc(userId).collection('search_history');
+      final historyRef = _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('search_history');
       final q = query.trim();
       if (q.isEmpty) return;
 
@@ -352,7 +371,8 @@ class FirestoreService {
         'timestamp': FieldValue.serverTimestamp(),
       });
 
-      final snapshot = await historyRef.orderBy('timestamp', descending: true).get();
+      final snapshot =
+          await historyRef.orderBy('timestamp', descending: true).get();
       if (snapshot.docs.length > 5) {
         for (var i = 5; i < snapshot.docs.length; i++) {
           await snapshot.docs[i].reference.delete();
@@ -365,12 +385,13 @@ class FirestoreService {
 
   Future<List<String>> getSearchHistory(String userId) async {
     try {
-      final snapshot = await _firestore
-          .collection('users')
-          .doc(userId)
-          .collection('search_history')
-          .orderBy('timestamp', descending: true)
-          .get();
+      final snapshot =
+          await _firestore
+              .collection('users')
+              .doc(userId)
+              .collection('search_history')
+              .orderBy('timestamp', descending: true)
+              .get();
       return snapshot.docs.map((doc) => doc.data()['query'] as String).toList();
     } catch (e) {
       print('Erro ao buscar histórico: $e');
@@ -380,7 +401,12 @@ class FirestoreService {
 
   Future<void> clearSearchHistory(String userId) async {
     try {
-      final snapshot = await _firestore.collection('users').doc(userId).collection('search_history').get();
+      final snapshot =
+          await _firestore
+              .collection('users')
+              .doc(userId)
+              .collection('search_history')
+              .get();
       for (var doc in snapshot.docs) {
         await doc.reference.delete();
       }

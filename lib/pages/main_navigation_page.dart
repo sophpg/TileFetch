@@ -5,7 +5,6 @@ import 'upload_page.dart';
 import 'search_page.dart';
 import 'favorites_page.dart';
 import '../components/custom_bottom_nav.dart';
-import '../theme/index.dart';
 
 class MainNavigationPage extends StatefulWidget {
   const MainNavigationPage({super.key});
