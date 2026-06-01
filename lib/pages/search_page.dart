@@ -22,6 +22,7 @@ class _AdvancedSearchPageState extends State<AdvancedSearchPage> {
   bool _isLoading = false;
   bool _hasSearched = false;
   String _currentQuery = '';
+  int _historyKey = 0;
 
   final List<String> _availableColors = [
     'Vermelho',
@@ -87,13 +88,20 @@ class _AdvancedSearchPageState extends State<AdvancedSearchPage> {
 
     try {
       final user = FirebaseAuth.instance.currentUser;
+
+      if (user != null) {
+        await _firestoreService.saveSearchQuery(user.uid, query.trim());
+      }
+
       final results = await _firestoreService.searchPosts(
         query,
         userId: user?.uid,
       );
+
       setState(() {
         _searchResults = results;
         _isLoading = false;
+        _historyKey++;
       });
     } catch (e) {
       print('Erro na busca: $e');
@@ -174,9 +182,8 @@ class _AdvancedSearchPageState extends State<AdvancedSearchPage> {
                     )
                     : (!_hasSearched)
                     ? SearchHistoryList(
-                      onHistoryTap: (query) {
-                        _handleSearch(query);
-                      },
+                      key: ValueKey(_historyKey),
+                      onHistoryTap: _handleSearch,
                     )
                     : _searchResults.isEmpty
                     ? Center(

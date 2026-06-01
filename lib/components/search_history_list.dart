@@ -3,20 +3,45 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../services/firestore_service.dart';
 import '../theme/index.dart';
 
-class SearchHistoryList extends StatelessWidget {
+class SearchHistoryList extends StatefulWidget {
   final Function(String) onHistoryTap;
 
   const SearchHistoryList({super.key, required this.onHistoryTap});
 
   @override
-  Widget build(BuildContext context) {
-    final firestoreService = FirestoreService();
-    final user = FirebaseAuth.instance.currentUser;
+  State<SearchHistoryList> createState() => _SearchHistoryListState();
+}
 
-    if (user == null) return const SizedBox.shrink();
+class _SearchHistoryListState extends State<SearchHistoryList> {
+  final FirestoreService _firestoreService = FirestoreService();
+  late Future<List<String>> _historyFuture;
+  final User? _user = FirebaseAuth.instance.currentUser;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadHistory();
+  }
+
+  void _loadHistory() {
+    if (_user == null) return;
+    setState(() {
+      _historyFuture = _firestoreService.getSearchHistory(_user!.uid);
+    });
+  }
+
+  Future<void> _clearHistory() async {
+    if (_user == null) return;
+    await _firestoreService.clearSearchHistory(_user!.uid);
+    _loadHistory();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_user == null) return const SizedBox.shrink();
 
     return FutureBuilder<List<String>>(
-      future: firestoreService.getSearchHistory(user.uid),
+      future: _historyFuture,
       builder: (context, snapshot) {
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const SizedBox.shrink();
@@ -27,7 +52,7 @@ class SearchHistoryList extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
           child: Container(
-            constraints: const BoxConstraints(maxWidth: 300), // Tamanho fixo para alinhar à esquerda
+            constraints: const BoxConstraints(maxWidth: 300),
             child: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -46,10 +71,7 @@ class SearchHistoryList extends StatelessWidget {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () async {
-                          await firestoreService.clearSearchHistory(user.uid);
-                          (context as Element).markNeedsBuild();
-                        },
+                        onTap: _clearHistory,
                         child: Text(
                           'LIMPAR',
                           style: AppFonts.body(
@@ -65,11 +87,12 @@ class SearchHistoryList extends StatelessWidget {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: history.length,
-                    separatorBuilder: (context, index) => const SizedBox(height: 8),
+                    separatorBuilder:
+                        (context, index) => const SizedBox(height: 8),
                     itemBuilder: (context, index) {
                       final query = history[index];
                       return GestureDetector(
-                        onTap: () => onHistoryTap(query),
+                        onTap: () => widget.onHistoryTap(query),
                         child: Row(
                           children: [
                             const Icon(
