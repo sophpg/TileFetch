@@ -165,7 +165,7 @@ class _UploadPageState extends State<UploadPage> {
             child: Image.asset(
               AppAssets.backgroundImage,
               fit: BoxFit.cover,
-              filterQuality: FilterQuality.high,
+              filterQuality: FilterQuality.none,
             ),
           ),
           Positioned.fill(child: Container(color: AppColors.overlayDark)),

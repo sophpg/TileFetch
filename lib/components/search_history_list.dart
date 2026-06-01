@@ -54,7 +54,7 @@ class SearchHistoryList extends StatelessWidget {
                           'LIMPAR',
                           style: AppFonts.body(
                             color: AppColors.primary,
-                            size: 12,
+                            size: AppSpacing.md,
                           ),
                         ),
                       ),

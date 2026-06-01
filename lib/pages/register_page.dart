@@ -162,7 +162,7 @@ class _RegisterPageState extends State<RegisterPage> {
             child: Image.asset(
               AppAssets.backgroundImage,
               fit: BoxFit.cover,
-              filterQuality: FilterQuality.high,
+              filterQuality: FilterQuality.none,
             ),
           ),
           Positioned.fill(child: Container(color: AppColors.overlayDark)),
@@ -183,7 +183,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         child: Image.asset(
                           AppAssets.logoImage,
                           fit: BoxFit.contain,
-                          filterQuality: FilterQuality.high,
+                          filterQuality: FilterQuality.none,
                         ),
                       ),
                       const SizedBox(height: AppSpacing.lg),

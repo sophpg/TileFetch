@@ -69,6 +69,7 @@ class _FilterBarState extends State<FilterBar> {
   Widget _buildOrderDropdown() {
     return DropdownButton<String>(
       value: _selectedOrder,
+      style: AppFonts.body(size: AppSpacing.md),
       dropdownColor: AppColors.fieldBackground,
       icon: const Icon(Icons.arrow_drop_down, color: AppColors.textSecondary),
       underline: Container(
@@ -93,7 +94,7 @@ class _FilterBarState extends State<FilterBar> {
       value: _selectedColor,
       hint: Text(
         'Cor',
-        style: AppFonts.body(size: 12, color: AppColors.textSecondary),
+        style: AppFonts.body(size: AppSpacing.md, color: AppColors.textSecondary),
       ),
       dropdownColor: AppColors.fieldBackground,
       icon: const Icon(Icons.arrow_drop_down, color: AppColors.textSecondary),
@@ -106,7 +107,7 @@ class _FilterBarState extends State<FilterBar> {
           value: null,
           child: Text(
             'Cores',
-            style: AppFonts.body(size: 12, color: AppColors.textPrimary),
+            style: AppFonts.body(size: AppSpacing.md, color: AppColors.textPrimary),
           ),
         ),
         ..._commonColorOptions.entries.map((entry) {
@@ -126,7 +127,7 @@ class _FilterBarState extends State<FilterBar> {
                 const SizedBox(width: AppSpacing.xs),
                 Text(
                   entry.key,
-                  style: AppFonts.body(size: 12, color: AppColors.textPrimary),
+                  style: AppFonts.body(size: AppSpacing.md, color: AppColors.textPrimary),
                 ),
               ],
             ),
@@ -145,7 +146,7 @@ class _FilterBarState extends State<FilterBar> {
       value: _selectedResolution,
       hint: Text(
         'Resolução',
-        style: AppFonts.body(size: 12, color: AppColors.textSecondary),
+        style: AppFonts.body(size: AppSpacing.md, color: AppColors.textSecondary),
       ),
       dropdownColor: AppColors.fieldBackground,
       icon: const Icon(Icons.arrow_drop_down, color: AppColors.textSecondary),
@@ -158,7 +159,7 @@ class _FilterBarState extends State<FilterBar> {
           value: null,
           child: Text(
             'Resolução',
-            style: AppFonts.body(size: 12, color: AppColors.textPrimary),
+            style: AppFonts.body(size: AppSpacing.md, color: AppColors.textPrimary),
           ),
         ),
         ...widget.availableResolutions.map((res) {
@@ -166,7 +167,7 @@ class _FilterBarState extends State<FilterBar> {
             value: res,
             child: Text(
               res.label,
-              style: AppFonts.body(size: 12, color: AppColors.textPrimary),
+              style: AppFonts.body(size: AppSpacing.md, color: AppColors.textPrimary),
             ),
           );
         }),
@@ -183,7 +184,7 @@ class _FilterBarState extends State<FilterBar> {
       value: _selectedTag,
       hint: Text(
         'Tag',
-        style: AppFonts.body(size: 12, color: AppColors.textSecondary),
+        style: AppFonts.body(size: AppSpacing.md, color: AppColors.textSecondary),
       ),
       dropdownColor: AppColors.fieldBackground,
       icon: const Icon(Icons.arrow_drop_down, color: AppColors.textSecondary),
@@ -196,7 +197,7 @@ class _FilterBarState extends State<FilterBar> {
           value: null,
           child: Text(
             'Tag',
-            style: AppFonts.body(size: 12, color: AppColors.textPrimary),
+            style: AppFonts.body(size: AppSpacing.md, color: AppColors.textPrimary),
           ),
         ),
         ...widget.availableTags.map((tag) {
@@ -204,7 +205,7 @@ class _FilterBarState extends State<FilterBar> {
             value: tag,
             child: Text(
               tag,
-              style: AppFonts.body(size: 12, color: AppColors.textPrimary),
+              style: AppFonts.body(size: AppSpacing.md, color: AppColors.textPrimary),
             ),
           );
         }),
