@@ -22,6 +22,7 @@ class _AdvancedSearchPageState extends State<AdvancedSearchPage> {
   bool _isLoading = false;
   bool _hasSearched = false;
   String _currentQuery = '';
+  int _historyKey = 0;
 
   final List<String> _availableColors = [
     'Vermelho',
@@ -86,10 +87,21 @@ class _AdvancedSearchPageState extends State<AdvancedSearchPage> {
     });
 
     try {
-      final results = await _firestoreService.searchPosts(query);
+      final user = FirebaseAuth.instance.currentUser;
+
+      if (user != null) {
+        await _firestoreService.saveSearchQuery(user.uid, query.trim());
+      }
+
+      final results = await _firestoreService.searchPosts(
+        query,
+        userId: user?.uid,
+      );
+
       setState(() {
         _searchResults = results;
         _isLoading = false;
+        _historyKey++;
       });
     } catch (e) {
       print('Erro na busca: $e');
@@ -113,7 +125,24 @@ class _AdvancedSearchPageState extends State<AdvancedSearchPage> {
   Future<void> _handleLike(String postId) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
-    await _firestoreService.toggleLike(postId, user.uid);
+
+    final success = await _firestoreService.toggleLike(postId, user.uid);
+    if (!success) return;
+
+    setState(() {
+      _searchResults =
+          _searchResults.map((p) {
+            if (p.id != postId) return p;
+            final isNowLiked = !p.isLikedByMe;
+            return p.copyWith(
+              isLikedByMe: isNowLiked,
+              curtidas:
+                  isNowLiked
+                      ? p.curtidas + 1
+                      : (p.curtidas - 1).clamp(0, 999999),
+            );
+          }).toList();
+    });
   }
 
   @override
@@ -153,30 +182,26 @@ class _AdvancedSearchPageState extends State<AdvancedSearchPage> {
                     )
                     : (!_hasSearched)
                     ? SearchHistoryList(
-                      onHistoryTap: (query) {
-                        _handleSearch(query);
-                      },
+                      key: ValueKey(_historyKey),
+                      onHistoryTap: _handleSearch,
                     )
                     : _searchResults.isEmpty
                     ? Center(
                       child: Text(
                         'Nenhum resultado encontrado',
-                        style: AppFonts.body(
-                          color: AppColors.textSecondary,
-                        ),
+                        style: AppFonts.body(color: AppColors.textSecondary),
                       ),
                     )
                     : GridView.builder(
                       padding: const EdgeInsets.all(AppSpacing.md),
-                      gridDelegate:
-                          SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: _calculateGridColumns(
-                              MediaQuery.of(context).size.width,
-                            ),
-                            crossAxisSpacing: AppSpacing.md,
-                            mainAxisSpacing: AppSpacing.md,
-                            childAspectRatio: 3 / 4,
-                          ),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: _calculateGridColumns(
+                          MediaQuery.of(context).size.width,
+                        ),
+                        crossAxisSpacing: AppSpacing.md,
+                        mainAxisSpacing: AppSpacing.md,
+                        childAspectRatio: 3 / 4,
+                      ),
                       itemCount: _searchResults.length,
                       itemBuilder: (context, index) {
                         return PostCard(

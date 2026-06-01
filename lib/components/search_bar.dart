@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pixelarticons/pixelarticons.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../theme/index.dart';
-import '../services/search_history_service.dart';
+import '../services/firestore_service.dart';
 
 class HomeSearchBar extends StatefulWidget implements PreferredSizeWidget {
   final Function(String) onSearch;
@@ -26,7 +27,7 @@ class HomeSearchBar extends StatefulWidget implements PreferredSizeWidget {
 
 class _HomeSearchBarState extends State<HomeSearchBar> {
   late TextEditingController _controller;
-  final SearchHistoryService _historyService = SearchHistoryService();
+  final FirestoreService _firestoreService = FirestoreService();
 
   @override
   void initState() {
@@ -43,11 +44,15 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
     super.dispose();
   }
 
-  void _handleSubmitted(String value) {
-    if (value.trim().isNotEmpty) {
-      _historyService.addSearch(value);
-      widget.onSubmitted?.call(value);
+  Future<void> _handleSubmitted(String value) async {
+    if (value.trim().isEmpty) return;
+
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await _firestoreService.saveSearchQuery(user.uid, value.trim());
     }
+
+    widget.onSubmitted?.call(value);
   }
 
   @override
@@ -87,7 +92,8 @@ class _HomeSearchBarState extends State<HomeSearchBar> {
                     color: AppColors.textDisabled,
                   ),
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.zero,
+                  contentPadding: const EdgeInsets.only(bottom: 2),
+                  isCollapsed: true,
                 ),
                 onSubmitted: _handleSubmitted,
                 onTap: widget.onTap,

@@ -42,10 +42,11 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _loadUserData() async {
     if (_currentUser == null) return;
     try {
-      final doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(_currentUser!.uid)
-          .get();
+      final doc =
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(_currentUser!.uid)
+              .get();
       if (mounted) {
         setState(() {
           _userData = doc.data();
@@ -55,9 +56,9 @@ class _ProfilePageState extends State<ProfilePage> {
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao carregar perfil: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Erro ao carregar perfil: $e')));
       }
     }
   }
@@ -66,13 +67,23 @@ class _ProfilePageState extends State<ProfilePage> {
     if (_currentUser == null) return;
     setState(() => _isLoadingPosts = true);
     try {
-      final snapshot = await FirebaseFirestore.instance
-          .collection('posts')
-          .where('uid', isEqualTo: _currentUser!.uid)
-          .orderBy('dataCriacao', descending: true)
-          .get();
+      final snapshot =
+          await FirebaseFirestore.instance
+              .collection('posts')
+              .where('uid', isEqualTo: _currentUser!.uid)
+              .orderBy('dataCriacao', descending: true)
+              .get();
 
-      final posts = snapshot.docs.map((doc) => Post.fromFirestore(doc)).toList();
+      List<Post> posts =
+          snapshot.docs.map((doc) => Post.fromFirestore(doc)).toList();
+
+      final likedIds = await _firestoreService.getUserLikedPostIds(
+        _currentUser!.uid,
+      );
+      posts =
+          posts
+              .map((p) => p.copyWith(isLikedByMe: likedIds.contains(p.id)))
+              .toList();
 
       if (mounted) {
         setState(() {
@@ -83,9 +94,9 @@ class _ProfilePageState extends State<ProfilePage> {
     } catch (e) {
       if (mounted) {
         setState(() => _isLoadingPosts = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao carregar posts: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Erro ao carregar posts: $e')));
       }
     }
   }
@@ -107,8 +118,27 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> _toggleLike(String postId) async {
     if (_currentUser == null) return;
-    await _firestoreService.toggleLike(postId, _currentUser!.uid);
-    _loadMyPosts();
+
+    final success = await _firestoreService.toggleLike(
+      postId,
+      _currentUser!.uid,
+    );
+    if (!success) return;
+
+    setState(() {
+      _myPosts =
+          _myPosts.map((p) {
+            if (p.id != postId) return p;
+            final isNowLiked = !p.isLikedByMe;
+            return p.copyWith(
+              isLikedByMe: isNowLiked,
+              curtidas:
+                  isNowLiked
+                      ? p.curtidas + 1
+                      : (p.curtidas - 1).clamp(0, 999999),
+            );
+          }).toList();
+    });
   }
 
   Future<void> _handleLogout() async {
@@ -123,9 +153,9 @@ class _ProfilePageState extends State<ProfilePage> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao fazer logout: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Erro ao fazer logout: $e')));
       }
     }
   }
@@ -143,9 +173,9 @@ class _ProfilePageState extends State<ProfilePage> {
       });
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao salvar perfil: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Erro ao salvar perfil: $e')));
       }
     }
   }
@@ -202,9 +232,9 @@ class _ProfilePageState extends State<ProfilePage> {
     } catch (e) {
       if (mounted) {
         setState(() => _isUploadingAvatar = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Erro: $e')));
       }
     }
   }
@@ -231,7 +261,10 @@ class _ProfilePageState extends State<ProfilePage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 child: Text(
                   'foto de perfil',
                   style: AppFonts.body(
@@ -241,9 +274,17 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
               ),
-              const Divider(height: 1, thickness: 0.5, color: AppColors.borderDefault),
+              const Divider(
+                height: 1,
+                thickness: 0.5,
+                color: AppColors.borderDefault,
+              ),
               ListTile(
-                leading: const Icon(Icons.photo_library_outlined, color: AppColors.textPrimary, size: 20),
+                leading: const Icon(
+                  Icons.photo_library_outlined,
+                  color: AppColors.textPrimary,
+                  size: 20,
+                ),
                 title: Text(
                   'escolher da galeria',
                   style: AppFonts.body(color: AppColors.textPrimary, size: 13),
@@ -254,7 +295,11 @@ class _ProfilePageState extends State<ProfilePage> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.camera_alt_outlined, color: AppColors.textPrimary, size: 20),
+                leading: const Icon(
+                  Icons.camera_alt_outlined,
+                  color: AppColors.textPrimary,
+                  size: 20,
+                ),
                 title: Text(
                   'tirar foto',
                   style: AppFonts.body(color: AppColors.textPrimary, size: 13),
@@ -285,7 +330,9 @@ class _ProfilePageState extends State<ProfilePage> {
           builder: (ctx, setDialogState) {
             return Dialog(
               backgroundColor: AppColors.fieldBackground,
-              shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.zero,
+              ),
               child: Container(
                 decoration: BoxDecoration(
                   border: Border.all(color: AppColors.borderDefault, width: 1),
@@ -304,46 +351,82 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    Text('nome', style: AppFonts.body(color: AppColors.textSecondary, size: 11)),
+                    Text(
+                      'nome',
+                      style: AppFonts.body(
+                        color: AppColors.textSecondary,
+                        size: 11,
+                      ),
+                    ),
                     const SizedBox(height: 6),
                     TextField(
                       controller: nomeCtrl,
-                      style: AppFonts.body(color: AppColors.textPrimary, size: 13),
+                      style: AppFonts.body(
+                        color: AppColors.textPrimary,
+                        size: 13,
+                      ),
                       cursorColor: AppColors.primary,
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: Colors.black,
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.zero,
-                          borderSide: BorderSide(color: AppColors.borderDefault, width: 1),
+                          borderSide: BorderSide(
+                            color: AppColors.borderDefault,
+                            width: 1,
+                          ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.zero,
-                          borderSide: BorderSide(color: AppColors.primary, width: 1.5),
+                          borderSide: BorderSide(
+                            color: AppColors.primary,
+                            width: 1.5,
+                          ),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
-                    Text('bio', style: AppFonts.body(color: AppColors.textSecondary, size: 11)),
+                    Text(
+                      'bio',
+                      style: AppFonts.body(
+                        color: AppColors.textSecondary,
+                        size: 11,
+                      ),
+                    ),
                     const SizedBox(height: 6),
                     TextField(
                       controller: bioCtrl,
                       maxLines: 3,
-                      style: AppFonts.body(color: AppColors.textPrimary, size: 13),
+                      style: AppFonts.body(
+                        color: AppColors.textPrimary,
+                        size: 13,
+                      ),
                       cursorColor: AppColors.primary,
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: Colors.black,
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.zero,
-                          borderSide: BorderSide(color: AppColors.borderDefault, width: 1),
+                          borderSide: BorderSide(
+                            color: AppColors.borderDefault,
+                            width: 1,
+                          ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.zero,
-                          borderSide: BorderSide(color: AppColors.primary, width: 1.5),
+                          borderSide: BorderSide(
+                            color: AppColors.primary,
+                            width: 1.5,
+                          ),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -355,7 +438,10 @@ class _ProfilePageState extends State<ProfilePage> {
                             onPressed: saving ? null : () => Navigator.pop(ctx),
                             child: Text(
                               'cancelar',
-                              style: AppFonts.body(color: AppColors.textSecondary, size: AppSpacing.md),
+                              style: AppFonts.body(
+                                color: AppColors.textSecondary,
+                                size: AppSpacing.md,
+                              ),
                             ),
                           ),
                         ),
@@ -363,33 +449,35 @@ class _ProfilePageState extends State<ProfilePage> {
                         Expanded(
                           child: TextButton(
                             style: AppButtons.primaryButtonStyle(),
-                            onPressed: saving
-                                ? null
-                                : () async {
-                                    setDialogState(() => saving = true);
-                                    await _saveProfile(
-                                      nome: nomeCtrl.text.trim(),
-                                      bio: bioCtrl.text.trim(),
-                                    );
-                                    if (ctx.mounted) Navigator.pop(ctx);
-                                  },
-                            child: saving
-                                ? const SizedBox(
-                                    height: 14,
-                                    width: 14,
-                                    child: CircularProgressIndicator(
-                                      color: AppColors.primary,
-                                      strokeWidth: 2,
+                            onPressed:
+                                saving
+                                    ? null
+                                    : () async {
+                                      setDialogState(() => saving = true);
+                                      await _saveProfile(
+                                        nome: nomeCtrl.text.trim(),
+                                        bio: bioCtrl.text.trim(),
+                                      );
+                                      if (ctx.mounted) Navigator.pop(ctx);
+                                    },
+                            child:
+                                saving
+                                    ? const SizedBox(
+                                      height: 14,
+                                      width: 14,
+                                      child: CircularProgressIndicator(
+                                        color: AppColors.primary,
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                    : Text(
+                                      'salvar',
+                                      style: AppFonts.body(
+                                        color: AppColors.primary,
+                                        size: AppSpacing.md,
+                                        weight: FontWeight.bold,
+                                      ),
                                     ),
-                                  )
-                                : Text(
-                                    'salvar',
-                                    style: AppFonts.body(
-                                      color: AppColors.primary,
-                                      size: AppSpacing.md,
-                                      weight: FontWeight.bold,
-                                    ),
-                                  ),
                           ),
                         ),
                       ],
@@ -485,7 +573,9 @@ class _ProfilePageState extends State<ProfilePage> {
                     if (_isLoadingPosts)
                       const SliverFillRemaining(
                         child: Center(
-                          child: CircularProgressIndicator(color: AppColors.primary),
+                          child: CircularProgressIndicator(
+                            color: AppColors.primary,
+                          ),
                         ),
                       )
                     else if (_myPosts.isEmpty)
@@ -525,13 +615,13 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                           gridDelegate:
                               SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: _calculateGridColumns(
-                              MediaQuery.of(context).size.width,
-                            ),
-                            crossAxisSpacing: 2,
-                            mainAxisSpacing: 2,
-                            childAspectRatio: 0.65,
-                          ),
+                                crossAxisCount: _calculateGridColumns(
+                                  MediaQuery.of(context).size.width,
+                                ),
+                                crossAxisSpacing: 2,
+                                mainAxisSpacing: 2,
+                                childAspectRatio: 0.65,
+                              ),
                         ),
                       ),
                   ],
@@ -614,28 +704,29 @@ class _ProfilePageState extends State<ProfilePage> {
                     color: AppColors.fieldBackground,
                   ),
                   child: ClipOval(
-                    child: _isUploadingAvatar
-                        ? const Center(
-                            child: SizedBox(
-                              width: 28,
-                              height: 28,
-                              child: CircularProgressIndicator(
-                                color: AppColors.primary,
-                                strokeWidth: 2.5,
+                    child:
+                        _isUploadingAvatar
+                            ? const Center(
+                              child: SizedBox(
+                                width: 28,
+                                height: 28,
+                                child: CircularProgressIndicator(
+                                  color: AppColors.primary,
+                                  strokeWidth: 2.5,
+                                ),
                               ),
-                            ),
-                          )
-                        : avatarBytes != null
+                            )
+                            : avatarBytes != null
                             ? Image.memory(
-                                avatarBytes,
-                                key: ValueKey(base64Str!.hashCode),
-                                fit: BoxFit.cover,
-                              )
+                              avatarBytes,
+                              key: ValueKey(base64Str!.hashCode),
+                              fit: BoxFit.cover,
+                            )
                             : const Icon(
-                                Icons.account_circle,
-                                color: AppColors.primary,
-                                size: 40,
-                              ),
+                              Icons.account_circle,
+                              color: AppColors.primary,
+                              size: 40,
+                            ),
                   ),
                 ),
                 if (!_isUploadingAvatar)
@@ -648,9 +739,16 @@ class _ProfilePageState extends State<ProfilePage> {
                       decoration: BoxDecoration(
                         color: AppColors.primary,
                         shape: BoxShape.circle,
-                        border: Border.all(color: AppColors.background, width: 1.5),
+                        border: Border.all(
+                          color: AppColors.background,
+                          width: 1.5,
+                        ),
                       ),
-                      child: const Icon(Icons.edit, color: Colors.black, size: AppSpacing.md),
+                      child: const Icon(
+                        Icons.edit,
+                        color: Colors.black,
+                        size: AppSpacing.md,
+                      ),
                     ),
                   ),
               ],
@@ -674,9 +772,10 @@ class _ProfilePageState extends State<ProfilePage> {
                 Text(
                   bio.isNotEmpty ? bio : 'Adicione uma bio',
                   style: AppFonts.body(
-                    color: bio.isNotEmpty
-                        ? AppColors.textSecondary
-                        : AppColors.textDisabled,
+                    color:
+                        bio.isNotEmpty
+                            ? AppColors.textSecondary
+                            : AppColors.textDisabled,
                     size: 13,
                   ),
                   maxLines: 3,
