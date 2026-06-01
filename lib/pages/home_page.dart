@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tilefetch/models/post_model.dart';
 import 'package:tilefetch/services/firestore_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tilefetch/components/search_bar.dart';
 import 'package:tilefetch/components/filter_bar.dart';
 import 'package:tilefetch/components/post_card.dart';
@@ -37,7 +38,9 @@ class _HomePageState extends State<HomePage> {
   List<Resolucao> _availableResolutions = [];
 
   bool _isLoading = true;
+  bool _isLoadingMore = false;
   bool _hasMore = true;
+  DocumentSnapshot? _lastDoc;
   String _searchQuery = '';
   int _currentNavIndex = 0;
 
@@ -56,17 +59,30 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _loadInitialData() async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _lastDoc = null;
+      _hasMore = true;
+      _allPosts = [];
+    });
 
     try {
-      final posts = await _firestoreService.fetchPostsHome();
+      final snapshot = await FirebaseFirestore.instance
+          .collection('posts')
+          .where('visibilidade', isEqualTo: 'public')
+          .orderBy('dataCriacao', descending: true)
+          .limit(20)
+          .get();
+
+      List<Post> posts = snapshot.docs.map((doc) => Post.fromFirestore(doc)).toList();
+      final lastDoc = snapshot.docs.isNotEmpty ? snapshot.docs.last : null;
+      final hasMore = snapshot.docs.length == 20;
+
       final tags = await _firestoreService.getAllTags();
       final resolutions = await _firestoreService.getAllResolutions();
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser != null) {
-        final likedIds = await _firestoreService.getUserLikedPostIds(
-          currentUser.uid,
-        );
+        final likedIds = await _firestoreService.getUserLikedPostIds(currentUser.uid);
         for (var i = 0; i < posts.length; i++) {
           if (likedIds.contains(posts[i].id)) {
             posts[i] = posts[i].copyWith(isLikedByMe: true);
@@ -81,14 +97,16 @@ class _HomePageState extends State<HomePage> {
         _availableTags = tags;
         _availableResolutions = resolutions;
         _isLoading = false;
+        _lastDoc = lastDoc;
+        _hasMore = hasMore;
       });
     } catch (e) {
       print('Erro ao carregar dados iniciais: $e');
       setState(() => _isLoading = false);
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Erro ao carregar posts: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao carregar posts: $e')),
+        );
       }
     }
   }
@@ -101,22 +119,39 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _loadMorePosts() async {
-    if (!_hasMore || _allPosts.isEmpty) return;
+    if (!_hasMore || _isLoadingMore || _lastDoc == null) return;
+
+    setState(() => _isLoadingMore = true);
 
     try {
-      final newPosts = await _firestoreService.fetchPostsHome();
+      final snapshot = await FirebaseFirestore.instance
+          .collection('posts')
+          .where('visibilidade', isEqualTo: 'public')
+          .orderBy('dataCriacao', descending: true)
+          .limit(20)
+          .startAfterDocument(_lastDoc!)
+          .get();
 
-      if (newPosts.isEmpty) {
-        setState(() => _hasMore = false);
+      if (snapshot.docs.isEmpty) {
+        setState(() {
+          _hasMore = false;
+          _isLoadingMore = false;
+        });
         return;
       }
 
+      final newPosts = snapshot.docs.map((doc) => Post.fromFirestore(doc)).toList();
+
       setState(() {
         _allPosts.addAll(newPosts);
+        _lastDoc = snapshot.docs.last;
+        _hasMore = snapshot.docs.length == 20;
+        _isLoadingMore = false;
         _applyFilters();
       });
     } catch (e) {
       print('Erro ao carregar mais posts: $e');
+      setState(() => _isLoadingMore = false);
     }
   }
 
