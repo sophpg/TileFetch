@@ -126,7 +126,7 @@ class _PostCardState extends State<PostCard> {
                                 Text(
                                   widget.post.curtidas.toString(),
                                   style: AppFonts.body(
-                                    size: 12,
+                                    size: AppSpacing.md,
                                     color: AppColors.primary,
                                   ),
                                 ),

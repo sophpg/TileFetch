@@ -96,7 +96,7 @@ class _LoginPageState extends State<LoginPage> {
             child: Image.asset(
               AppAssets.backgroundImage,
               fit: BoxFit.cover,
-              filterQuality: FilterQuality.high,
+              filterQuality: FilterQuality.none,
             ),
           ),
           Positioned.fill(
@@ -117,7 +117,7 @@ class _LoginPageState extends State<LoginPage> {
                         child: Image.asset(
                           AppAssets.logoImage,
                           fit: BoxFit.contain,
-                          filterQuality: FilterQuality.high,
+                          filterQuality: FilterQuality.none,
                         ),
                       ),
                       const SizedBox(height: AppSpacing.lg),

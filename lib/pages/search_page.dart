@@ -23,7 +23,15 @@ class _AdvancedSearchPageState extends State<AdvancedSearchPage> {
   bool _hasSearched = false;
   String _currentQuery = '';
 
-  final List<String> _availableColors = ['Vermelho', 'Laranja', 'Amarelo', 'Verde', 'Azul', 'Roxo', 'Rosa'];
+  final List<String> _availableColors = [
+    'Vermelho',
+    'Laranja',
+    'Amarelo',
+    'Verde',
+    'Azul',
+    'Roxo',
+    'Rosa',
+  ];
   List<String> _availableTags = [];
   List<Resolucao> _availableResolutions = [];
 
@@ -51,6 +59,14 @@ class _AdvancedSearchPageState extends State<AdvancedSearchPage> {
     } catch (e) {
       print('Erro ao carregar metadados: $e');
     }
+  }
+
+  int _calculateGridColumns(double screenWidth) {
+    if (screenWidth < 600) return 2;
+    if (screenWidth < 900) return 3;
+    if (screenWidth < 1200) return 4;
+    if (screenWidth < 1500) return 5;
+    return 6;
   }
 
   Future<void> _handleSearch(String query) async {
@@ -90,7 +106,7 @@ class _AdvancedSearchPageState extends State<AdvancedSearchPage> {
   Future<void> _handlePostTap(String postId) async {
     final post = _searchResults.firstWhere((p) => p.id == postId);
     await PostDetailDialog.show(context, post, _firestoreService, () {
-      setState(() {}); 
+      setState(() {});
     });
   }
 
@@ -103,6 +119,7 @@ class _AdvancedSearchPageState extends State<AdvancedSearchPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: HomeSearchBar(
         onSearch: (q) {
           if (q.isEmpty && _hasSearched) {
@@ -118,57 +135,57 @@ class _AdvancedSearchPageState extends State<AdvancedSearchPage> {
           });
         },
       ),
-      body: Stack(
+      body: Column(
         children: [
-          Positioned.fill(
-            child: Image.asset(
-              AppAssets.backgroundImage,
-              fit: BoxFit.cover,
-              filterQuality: FilterQuality.high,
-            ),
+          FilterBar(
+            onFilterChange: _handleFilterChange,
+            availableColors: _availableColors,
+            availableTags: _availableTags,
+            availableResolutions: _availableResolutions,
           ),
-          Positioned.fill(child: Container(color: AppColors.overlayDark)),
-          Column(
-            children: [
-              FilterBar(
-                onFilterChange: _handleFilterChange,
-                availableColors: _availableColors,
-                availableTags: _availableTags,
-                availableResolutions: _availableResolutions,
-              ),
-              Expanded(
-                child: _isLoading
-                    ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+          Expanded(
+            child:
+                _isLoading
+                    ? const Center(
+                      child: CircularProgressIndicator(
+                        color: AppColors.primary,
+                      ),
+                    )
                     : (!_hasSearched)
-                        ? SearchHistoryList(
-                            onHistoryTap: (query) {
-                              _handleSearch(query);
-                              // Note: We might need a way to update the text field in HomeSearchBar
-                              // This would require a controller shared or a key. 
-                              // For now, it will trigger the search.
-                            },
-                          )
-                        : _searchResults.isEmpty
-                            ? Center(child: Text('Nenhum resultado encontrado', style: AppFonts.body(color: AppColors.textSecondary)))
-                            : GridView.builder(
-                                padding: const EdgeInsets.all(AppSpacing.md),
-                                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 3,
-                                  crossAxisSpacing: AppSpacing.md,
-                                  mainAxisSpacing: AppSpacing.md,
-                                  childAspectRatio: 3 / 4,
-                                ),
-                                itemCount: _searchResults.length,
-                                itemBuilder: (context, index) {
-                                  return PostCard(
-                                    post: _searchResults[index],
-                                    onTap: _handlePostTap,
-                                    onLike: _handleLike,
-                                  );
-                                },
-                              ),
-              ),
-            ],
+                    ? SearchHistoryList(
+                      onHistoryTap: (query) {
+                        _handleSearch(query);
+                      },
+                    )
+                    : _searchResults.isEmpty
+                    ? Center(
+                      child: Text(
+                        'Nenhum resultado encontrado',
+                        style: AppFonts.body(
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    )
+                    : GridView.builder(
+                      padding: const EdgeInsets.all(AppSpacing.md),
+                      gridDelegate:
+                          SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: _calculateGridColumns(
+                              MediaQuery.of(context).size.width,
+                            ),
+                            crossAxisSpacing: AppSpacing.md,
+                            mainAxisSpacing: AppSpacing.md,
+                            childAspectRatio: 3 / 4,
+                          ),
+                      itemCount: _searchResults.length,
+                      itemBuilder: (context, index) {
+                        return PostCard(
+                          post: _searchResults[index],
+                          onTap: _handlePostTap,
+                          onLike: _handleLike,
+                        );
+                      },
+                    ),
           ),
         ],
       ),

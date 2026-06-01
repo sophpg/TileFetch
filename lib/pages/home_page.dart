@@ -272,6 +272,14 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  int _calculateGridColumns(double screenWidth) {
+    if (screenWidth < 600) return 2;
+    if (screenWidth < 900) return 3;
+    if (screenWidth < 1200) return 4;
+    if (screenWidth < 1500) return 5;
+    return 6;
+  }
+
   String _mapHexToColorCategory(String hex) {
     final color = AppHelpers.hexToColor(hex);
     final hsv = HSVColor.fromColor(color);
@@ -373,7 +381,7 @@ class _HomePageState extends State<HomePage> {
             child: Image.asset(
               AppAssets.backgroundImage,
               fit: BoxFit.cover,
-              filterQuality: FilterQuality.high,
+              filterQuality: FilterQuality.none,
             ),
           ),
           Positioned.fill(child: Container(color: AppColors.overlayDark)),
@@ -407,8 +415,10 @@ class _HomePageState extends State<HomePage> {
                           controller: _scrollController,
                           padding: const EdgeInsets.all(AppSpacing.md),
                           gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 3,
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: _calculateGridColumns(
+                                  MediaQuery.of(context).size.width,
+                                ),
                                 crossAxisSpacing: AppSpacing.md,
                                 mainAxisSpacing: AppSpacing.md,
                                 childAspectRatio: 3 / 4,

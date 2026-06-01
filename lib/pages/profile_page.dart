@@ -90,6 +90,14 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  int _calculateGridColumns(double screenWidth) {
+    if (screenWidth < 600) return 2;
+    if (screenWidth < 900) return 3;
+    if (screenWidth < 1200) return 4;
+    if (screenWidth < 1500) return 5;
+    return 6;
+  }
+
   void _openPostDetail(String postId) {
     final post = _myPosts.firstWhere((p) => p.id == postId);
     PostDetailDialog.show(context, post, _firestoreService, () {
@@ -347,7 +355,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             onPressed: saving ? null : () => Navigator.pop(ctx),
                             child: Text(
                               'cancelar',
-                              style: AppFonts.body(color: AppColors.textSecondary, size: 12),
+                              style: AppFonts.body(color: AppColors.textSecondary, size: AppSpacing.md),
                             ),
                           ),
                         ),
@@ -378,7 +386,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     'salvar',
                                     style: AppFonts.body(
                                       color: AppColors.primary,
-                                      size: 12,
+                                      size: AppSpacing.md,
                                       weight: FontWeight.bold,
                                     ),
                                   ),
@@ -406,7 +414,7 @@ class _ProfilePageState extends State<ProfilePage> {
             child: Image.asset(
               AppAssets.backgroundImage,
               fit: BoxFit.cover,
-              filterQuality: FilterQuality.high,
+              filterQuality: FilterQuality.none,
             ),
           ),
           Positioned.fill(child: Container(color: AppColors.overlayDark)),
@@ -516,8 +524,10 @@ class _ProfilePageState extends State<ProfilePage> {
                             childCount: _myPosts.length,
                           ),
                           gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3,
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: _calculateGridColumns(
+                              MediaQuery.of(context).size.width,
+                            ),
                             crossAxisSpacing: 2,
                             mainAxisSpacing: 2,
                             childAspectRatio: 0.65,
@@ -545,7 +555,7 @@ class _ProfilePageState extends State<ProfilePage> {
         height: 72,
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          border: Border.all(color: AppColors.borderDefault, width: 1.5),
+          border: Border.all(color: AppColors.primary, width: 1.5),
           color: Colors.transparent,
         ),
         child: Column(
@@ -640,7 +650,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         shape: BoxShape.circle,
                         border: Border.all(color: AppColors.background, width: 1.5),
                       ),
-                      child: const Icon(Icons.edit, color: Colors.black, size: 12),
+                      child: const Icon(Icons.edit, color: Colors.black, size: AppSpacing.md),
                     ),
                   ),
               ],
