@@ -54,12 +54,11 @@ class _FavoritesPageState extends State<FavoritesPage> {
     if (user == null) return;
 
     final success = await _firestoreService.toggleLike(postId, user.uid);
-    if (success) {
-      // Remove from list if unliked
-      setState(() {
-        _favoritePosts.removeWhere((p) => p.id == postId);
-      });
-    }
+    if (!success) return;
+
+    setState(() {
+      _favoritePosts.removeWhere((p) => p.id == postId);
+    });
   }
 
   Future<void> _handlePostTap(String postId) async {
@@ -89,28 +88,35 @@ class _FavoritesPageState extends State<FavoritesPage> {
           ),
           Positioned.fill(child: Container(color: AppColors.overlayDark)),
           _isLoading
-              ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+              ? const Center(
+                child: CircularProgressIndicator(color: AppColors.primary),
+              )
               : _favoritePosts.isEmpty
-                  ? Center(child: Text('Nenhum favorito encontrado', style: AppFonts.body(color: AppColors.textSecondary)))
-                  : GridView.builder(
-                      padding: const EdgeInsets.all(AppSpacing.md),
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: _calculateGridColumns(
-                          MediaQuery.of(context).size.width,
-                        ),
-                        crossAxisSpacing: AppSpacing.md,
-                        mainAxisSpacing: AppSpacing.md,
-                        childAspectRatio: 3 / 4,
-                      ),
-                      itemCount: _favoritePosts.length,
-                      itemBuilder: (context, index) {
-                        return PostCard(
-                          post: _favoritePosts[index],
-                          onTap: _handlePostTap,
-                          onLike: _handleLike,
-                        );
-                      },
-                    ),
+              ? Center(
+                child: Text(
+                  'Nenhum favorito encontrado',
+                  style: AppFonts.body(color: AppColors.textSecondary),
+                ),
+              )
+              : GridView.builder(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: _calculateGridColumns(
+                    MediaQuery.of(context).size.width,
+                  ),
+                  crossAxisSpacing: AppSpacing.md,
+                  mainAxisSpacing: AppSpacing.md,
+                  childAspectRatio: 3 / 4,
+                ),
+                itemCount: _favoritePosts.length,
+                itemBuilder: (context, index) {
+                  return PostCard(
+                    post: _favoritePosts[index],
+                    onTap: _handlePostTap,
+                    onLike: _handleLike,
+                  );
+                },
+              ),
         ],
       ),
     );

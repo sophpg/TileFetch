@@ -28,7 +28,7 @@ class FirestoreService {
     }
   }
 
-  Future<List<Post>> searchPosts(String query) async {
+  Future<List<Post>> searchPosts(String query, {String? userId}) async {
     try {
       if (query.isEmpty) {
         return fetchPostsHome();
@@ -43,14 +43,25 @@ class FirestoreService {
 
       final lowerQuery = query.toLowerCase();
 
-      return snapshot.docs
-          .map((doc) => Post.fromFirestore(doc))
-          .where(
-            (post) =>
-                post.titulo.toLowerCase().contains(lowerQuery) ||
-                post.descricao.toLowerCase().contains(lowerQuery),
-          )
-          .toList();
+      List<Post> posts =
+          snapshot.docs
+              .map((doc) => Post.fromFirestore(doc))
+              .where(
+                (post) =>
+                    post.titulo.toLowerCase().contains(lowerQuery) ||
+                    post.descricao.toLowerCase().contains(lowerQuery),
+              )
+              .toList();
+
+      if (userId != null) {
+        final likedIds = await getUserLikedPostIds(userId);
+        posts =
+            posts
+                .map((p) => p.copyWith(isLikedByMe: likedIds.contains(p.id)))
+                .toList();
+      }
+
+      return posts;
     } catch (e) {
       print('Erro ao buscar posts: $e');
       return [];
