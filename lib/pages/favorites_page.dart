@@ -81,26 +81,33 @@ class _FavoritesPageState extends State<FavoritesPage> {
           ),
           Positioned.fill(child: Container(color: AppColors.overlayDark)),
           _isLoading
-              ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+              ? const Center(
+                child: CircularProgressIndicator(color: AppColors.primary),
+              )
               : _favoritePosts.isEmpty
-                  ? Center(child: Text('Nenhum favorito encontrado', style: AppFonts.body(color: AppColors.textSecondary)))
-                  : GridView.builder(
-                      padding: const EdgeInsets.all(AppSpacing.md),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        crossAxisSpacing: AppSpacing.md,
-                        mainAxisSpacing: AppSpacing.md,
-                        childAspectRatio: 3 / 4,
-                      ),
-                      itemCount: _favoritePosts.length,
-                      itemBuilder: (context, index) {
-                        return PostCard(
-                          post: _favoritePosts[index],
-                          onTap: _handlePostTap,
-                          onLike: _handleLike,
-                        );
-                      },
-                    ),
+              ? Center(
+                child: Text(
+                  'Nenhum favorito encontrado',
+                  style: AppFonts.body(color: AppColors.textSecondary),
+                ),
+              )
+              : GridView.builder(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  crossAxisSpacing: AppSpacing.md,
+                  mainAxisSpacing: AppSpacing.md,
+                  childAspectRatio: 3 / 4,
+                ),
+                itemCount: _favoritePosts.length,
+                itemBuilder: (context, index) {
+                  return PostCard(
+                    post: _favoritePosts[index],
+                    onTap: _handlePostTap,
+                    onLike: _handleLike,
+                  );
+                },
+              ),
         ],
       ),
     );

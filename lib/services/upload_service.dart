@@ -26,7 +26,8 @@ class UploadSizeException implements Exception {
 class UploadService {
   static const int firestoreMaxImageBytes = 950000;
   static const int firestoreDocumentReserveBytes = 25000;
-  static const int firestoreMaxBase64Bytes = firestoreMaxImageBytes - firestoreDocumentReserveBytes;
+  static const int firestoreMaxBase64Bytes =
+      firestoreMaxImageBytes - firestoreDocumentReserveBytes;
   static const int firestoreMaxRawBytesForDirectBase64 = 500000;
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -62,7 +63,8 @@ class UploadService {
     final postRef = _firestore.collection('posts').doc();
     final postId = postRef.id;
     if (!useFirestoreOnly) {
-      final extension = imageFile.path.toLowerCase().endsWith('.png') ? 'png' : 'jpg';
+      final extension =
+          imageFile.path.toLowerCase().endsWith('.png') ? 'png' : 'jpg';
       final contentType = extension == 'png' ? 'image/png' : 'image/jpeg';
       final storagePath = 'posts/${user.uid}/$postId';
       final originalRef = _storage.ref('$storagePath/original.$extension');
@@ -74,7 +76,9 @@ class UploadService {
       );
 
       final thumbImage = img.copyResize(decodedImage, width: 600);
-      final thumbBytes = Uint8List.fromList(img.encodeJpg(thumbImage, quality: 75));
+      final thumbBytes = Uint8List.fromList(
+        img.encodeJpg(thumbImage, quality: 75),
+      );
 
       await thumbRef.putData(
         thumbBytes,
@@ -84,17 +88,19 @@ class UploadService {
       final imageUrl = await originalRef.getDownloadURL();
       final thumbUrl = await thumbRef.getDownloadURL();
 
-      final normalizedTags = tags
-          .map((tag) => tag.trim())
-          .where((tag) => tag.isNotEmpty)
-          .toSet()
-          .toList();
+      final normalizedTags =
+          tags
+              .map((tag) => tag.trim())
+              .where((tag) => tag.isNotEmpty)
+              .toSet()
+              .toList();
 
-      List<String> normalizedColors = cores
-          .map((color) => color.trim())
-          .where((color) => color.isNotEmpty)
-          .toSet()
-          .toList();
+      List<String> normalizedColors =
+          cores
+              .map((color) => color.trim())
+              .where((color) => color.isNotEmpty)
+              .toSet()
+              .toList();
 
       if (normalizedColors.isEmpty) {
         normalizedColors = await extractColors(bytes);
@@ -108,10 +114,7 @@ class UploadService {
         'imagemUrl': imageUrl,
         'thumbnail': thumbUrl,
         'cores': normalizedColors,
-        'resolucao': {
-          'largura': largura,
-          'altura': altura,
-        },
+        'resolucao': {'largura': largura, 'altura': altura},
         'tags': normalizedTags,
         'curtidas': 0,
         'comentarios': 0,
@@ -125,7 +128,9 @@ class UploadService {
     }
 
     final thumbImage = img.copyResize(decodedImage, width: 600);
-    final thumbBytes = Uint8List.fromList(img.encodeJpg(thumbImage, quality: 60));
+    final thumbBytes = Uint8List.fromList(
+      img.encodeJpg(thumbImage, quality: 60),
+    );
     final base64Thumb = base64Encode(thumbBytes);
 
     Uint8List bytesForPost = bytes;
@@ -156,17 +161,19 @@ class UploadService {
       bytesForPost = Uint8List.fromList(jpg);
     }
 
-    final normalizedTags = tags
-        .map((tag) => tag.trim())
-        .where((tag) => tag.isNotEmpty)
-        .toSet()
-        .toList();
+    final normalizedTags =
+        tags
+            .map((tag) => tag.trim())
+            .where((tag) => tag.isNotEmpty)
+            .toSet()
+            .toList();
 
-    List<String> normalizedColors = cores
-        .map((color) => color.trim())
-        .where((color) => color.isNotEmpty)
-        .toSet()
-        .toList();
+    List<String> normalizedColors =
+        cores
+            .map((color) => color.trim())
+            .where((color) => color.isNotEmpty)
+            .toSet()
+            .toList();
 
     if (normalizedColors.isEmpty) {
       normalizedColors = await extractColors(bytesForPost);
@@ -182,10 +189,7 @@ class UploadService {
       'imagemBase64': base64Image,
       'thumbnailBase64': base64Thumb,
       'cores': normalizedColors,
-      'resolucao': {
-        'largura': largura,
-        'altura': altura,
-      },
+      'resolucao': {'largura': largura, 'altura': altura},
       'tags': normalizedTags,
       'curtidas': 0,
       'comentarios': 0,
@@ -204,7 +208,10 @@ class UploadService {
     );
 
     return palette.colors
-        .map((color) => '#${color.value.toRadixString(16).padLeft(8, '0').substring(2)}')
+        .map(
+          (color) =>
+              '#${color.value.toRadixString(16).padLeft(8, '0').substring(2)}',
+        )
         .toList();
   }
 }

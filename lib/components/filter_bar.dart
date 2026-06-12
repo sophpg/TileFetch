@@ -11,6 +11,7 @@ const Map<String, Color> _commonColorOptions = {
   'Roxo': Color(0xFFB35CFF),
   'Rosa': Color(0xFFFF6EC7),
 };
+
 class FilterBar extends StatefulWidget {
   final Function(Map<String, dynamic>) onFilterChange;
   final List<String> availableColors;
@@ -71,10 +72,7 @@ class _FilterBarState extends State<FilterBar> {
       value: _selectedOrder,
       dropdownColor: AppColors.fieldBackground,
       icon: const Icon(Icons.arrow_drop_down, color: AppColors.textSecondary),
-      underline: Container(
-        height: 1,
-        color: AppColors.borderDefault,
-      ),
+      underline: Container(height: 1, color: AppColors.borderDefault),
       items: const [
         DropdownMenuItem(value: 'recente', child: Text('Recentes')),
         DropdownMenuItem(value: 'popular', child: Text('Populares')),
@@ -97,10 +95,7 @@ class _FilterBarState extends State<FilterBar> {
       ),
       dropdownColor: AppColors.fieldBackground,
       icon: const Icon(Icons.arrow_drop_down, color: AppColors.textSecondary),
-      underline: Container(
-        height: 1,
-        color: AppColors.borderDefault,
-      ),
+      underline: Container(height: 1, color: AppColors.borderDefault),
       items: <DropdownMenuItem<String?>>[
         DropdownMenuItem<String?>(
           value: null,
@@ -149,10 +144,7 @@ class _FilterBarState extends State<FilterBar> {
       ),
       dropdownColor: AppColors.fieldBackground,
       icon: const Icon(Icons.arrow_drop_down, color: AppColors.textSecondary),
-      underline: Container(
-        height: 1,
-        color: AppColors.borderDefault,
-      ),
+      underline: Container(height: 1, color: AppColors.borderDefault),
       items: <DropdownMenuItem<Resolucao?>>[
         DropdownMenuItem<Resolucao?>(
           value: null,
@@ -187,10 +179,7 @@ class _FilterBarState extends State<FilterBar> {
       ),
       dropdownColor: AppColors.fieldBackground,
       icon: const Icon(Icons.arrow_drop_down, color: AppColors.textSecondary),
-      underline: Container(
-        height: 1,
-        color: AppColors.borderDefault,
-      ),
+      underline: Container(height: 1, color: AppColors.borderDefault),
       items: <DropdownMenuItem<String?>>[
         DropdownMenuItem<String?>(
           value: null,

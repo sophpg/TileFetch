@@ -45,17 +45,17 @@ class _LoginPageState extends State<LoginPage> {
       } else if (e.code == 'invalid-email') {
         message = "E-mail inválido.";
       }
-      
+
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(message)));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Erro: ${e.toString()}")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Erro: ${e.toString()}")));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -148,9 +148,7 @@ class _LoginPageState extends State<LoginPage> {
                         labelText: "Email",
                         filled: true,
                         fillColor: fieldBackground,
-                        labelStyle: AppFonts.body(
-                          color: Colors.white70,
-                        ),
+                        labelStyle: AppFonts.body(color: Colors.white70),
                         border: defaultBorder,
                         enabledBorder: defaultBorder,
                         focusedBorder: focusedBorder,
@@ -189,22 +187,23 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                         onPressed: _isLoading ? null : _signIn,
-                        child: _isLoading
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2,
+                        child:
+                            _isLoading
+                                ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                                : Text(
+                                  "Entrar",
+                                  style: AppFonts.body(
+                                    color: Colors.white,
+                                    weight: FontWeight.bold,
+                                  ),
                                 ),
-                              )
-                            : Text(
-                                "Entrar",
-                                style: AppFonts.body(
-                                  color: Colors.white,
-                                  weight: FontWeight.bold,
-                                ),
-                              ),
                       ),
                     ),
                     const SizedBox(height: 15),

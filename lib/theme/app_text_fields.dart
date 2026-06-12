@@ -19,14 +19,8 @@ class AppTextFields {
       labelText: labelText,
       filled: true,
       fillColor: fillColor,
-      labelStyle: AppFonts.body(
-        color: labelColor,
-        size: fontSize,
-      ),
-      errorStyle: AppFonts.body(
-        size: errorFontSize,
-        color: AppColors.error,
-      ),
+      labelStyle: AppFonts.body(color: labelColor, size: fontSize),
+      errorStyle: AppFonts.body(size: errorFontSize, color: AppColors.error),
       border: AppBorders.defaultInputBorder,
       enabledBorder: AppBorders.defaultInputBorder,
       focusedBorder: AppBorders.focusedInputBorder,
@@ -45,10 +39,7 @@ class AppTextFields {
     double size = 18,
     Color color = AppColors.textPrimary,
   }) {
-    return AppFonts.body(
-      size: size,
-      color: color,
-    );
+    return AppFonts.body(size: size, color: color);
   }
 
   // Configuração de email
@@ -58,10 +49,7 @@ class AppTextFields {
 
   // Configuração de senha
   static InputDecoration passwordInputDecoration({Widget? suffixIcon}) {
-    return standardInputDecoration(
-      labelText: "Senha",
-      suffixIcon: suffixIcon,
-    );
+    return standardInputDecoration(labelText: "Senha", suffixIcon: suffixIcon);
   }
 
   // Configuração de nome

@@ -23,7 +23,15 @@ class _AdvancedSearchPageState extends State<AdvancedSearchPage> {
   bool _hasSearched = false;
   String _currentQuery = '';
 
-  final List<String> _availableColors = ['Vermelho', 'Laranja', 'Amarelo', 'Verde', 'Azul', 'Roxo', 'Rosa'];
+  final List<String> _availableColors = [
+    'Vermelho',
+    'Laranja',
+    'Amarelo',
+    'Verde',
+    'Azul',
+    'Roxo',
+    'Rosa',
+  ];
   List<String> _availableTags = [];
   List<Resolucao> _availableResolutions = [];
 
@@ -90,7 +98,7 @@ class _AdvancedSearchPageState extends State<AdvancedSearchPage> {
   Future<void> _handlePostTap(String postId) async {
     final post = _searchResults.firstWhere((p) => p.id == postId);
     await PostDetailDialog.show(context, post, _firestoreService, () {
-      setState(() {}); 
+      setState(() {});
     });
   }
 
@@ -137,36 +145,49 @@ class _AdvancedSearchPageState extends State<AdvancedSearchPage> {
                 availableResolutions: _availableResolutions,
               ),
               Expanded(
-                child: _isLoading
-                    ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
-                    : (!_hasSearched)
+                child:
+                    _isLoading
+                        ? const Center(
+                          child: CircularProgressIndicator(
+                            color: AppColors.primary,
+                          ),
+                        )
+                        : (!_hasSearched)
                         ? SearchHistoryList(
-                            onHistoryTap: (query) {
-                              _handleSearch(query);
-                              // Note: We might need a way to update the text field in HomeSearchBar
-                              // This would require a controller shared or a key. 
-                              // For now, it will trigger the search.
-                            },
-                          )
+                          onHistoryTap: (query) {
+                            _handleSearch(query);
+                            // Note: We might need a way to update the text field in HomeSearchBar
+                            // This would require a controller shared or a key.
+                            // For now, it will trigger the search.
+                          },
+                        )
                         : _searchResults.isEmpty
-                            ? Center(child: Text('Nenhum resultado encontrado', style: AppFonts.body(color: AppColors.textSecondary)))
-                            : GridView.builder(
-                                padding: const EdgeInsets.all(AppSpacing.md),
-                                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 3,
-                                  crossAxisSpacing: AppSpacing.md,
-                                  mainAxisSpacing: AppSpacing.md,
-                                  childAspectRatio: 3 / 4,
-                                ),
-                                itemCount: _searchResults.length,
-                                itemBuilder: (context, index) {
-                                  return PostCard(
-                                    post: _searchResults[index],
-                                    onTap: _handlePostTap,
-                                    onLike: _handleLike,
-                                  );
-                                },
+                        ? Center(
+                          child: Text(
+                            'Nenhum resultado encontrado',
+                            style: AppFonts.body(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                        )
+                        : GridView.builder(
+                          padding: const EdgeInsets.all(AppSpacing.md),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 3,
+                                crossAxisSpacing: AppSpacing.md,
+                                mainAxisSpacing: AppSpacing.md,
+                                childAspectRatio: 3 / 4,
                               ),
+                          itemCount: _searchResults.length,
+                          itemBuilder: (context, index) {
+                            return PostCard(
+                              post: _searchResults[index],
+                              onTap: _handlePostTap,
+                              onLike: _handleLike,
+                            );
+                          },
+                        ),
               ),
             ],
           ),

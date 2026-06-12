@@ -27,7 +27,9 @@ class SearchHistoryList extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
           child: Container(
-            constraints: const BoxConstraints(maxWidth: 300), // Tamanho fixo para alinhar à esquerda
+            constraints: const BoxConstraints(
+              maxWidth: 300,
+            ), // Tamanho fixo para alinhar à esquerda
             child: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -65,7 +67,8 @@ class SearchHistoryList extends StatelessWidget {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: history.length,
-                    separatorBuilder: (context, index) => const SizedBox(height: 8),
+                    separatorBuilder:
+                        (context, index) => const SizedBox(height: 8),
                     itemBuilder: (context, index) {
                       final query = history[index];
                       return GestureDetector(

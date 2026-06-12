@@ -12,10 +12,7 @@ class AppHelpers {
     return Container(
       padding: padding,
       decoration: BoxDecoration(
-        border: Border.all(
-          color: borderColor,
-          width: borderWidth,
-        ),
+        border: Border.all(color: borderColor, width: borderWidth),
         color: backgroundColor ?? AppColors.fieldBackground,
       ),
       child: child,
@@ -37,21 +34,11 @@ class AppHelpers {
           vertical: AppSpacing.buttonHeight,
           horizontal: AppSpacing.xs,
         ),
-        side: BorderSide(
-          color: borderColor,
-          width: 1.0,
-        ),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.zero,
-        ),
+        side: BorderSide(color: borderColor, width: 1.0),
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
       ),
       onPressed: isDisabled ? null : onPressed,
-      child: Text(
-        label,
-        style: AppFonts.body(
-          color: textColor,
-        ),
-      ),
+      child: Text(label, style: AppFonts.body(color: textColor)),
     );
   }
 
@@ -103,13 +90,8 @@ class AppHelpers {
         labelText: label,
         filled: true,
         fillColor: AppColors.fieldBackground,
-        labelStyle: AppFonts.body(
-          color: AppColors.textSecondary,
-        ),
-        errorStyle: AppFonts.body(
-          size: 15,
-          color: AppColors.error,
-        ),
+        labelStyle: AppFonts.body(color: AppColors.textSecondary),
+        errorStyle: AppFonts.body(size: 15, color: AppColors.error),
         border: AppBorders.defaultInputBorder,
         enabledBorder: AppBorders.defaultInputBorder,
         focusedBorder: AppBorders.focusedInputBorder,
@@ -125,9 +107,7 @@ class AppHelpers {
     );
   }
 
-  static Stack backgroundStack({
-    required List<Widget> children,
-  }) {
+  static Stack backgroundStack({required List<Widget> children}) {
     return Stack(
       children: [
         Positioned.fill(
@@ -137,9 +117,7 @@ class AppHelpers {
             filterQuality: FilterQuality.high,
           ),
         ),
-        Positioned.fill(
-          child: Container(color: AppColors.overlayDark),
-        ),
+        Positioned.fill(child: Container(color: AppColors.overlayDark)),
         ...children,
       ],
     );
@@ -147,9 +125,7 @@ class AppHelpers {
 
   static Center loadingIndicator() {
     return const Center(
-      child: CircularProgressIndicator(
-        color: AppColors.primary,
-      ),
+      child: CircularProgressIndicator(color: AppColors.primary),
     );
   }
 

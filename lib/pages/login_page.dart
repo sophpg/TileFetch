@@ -64,16 +64,16 @@ class _LoginPageState extends State<LoginPage> {
       if (mounted) {
         setState(() {});
         if (_passwordError == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(message)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(message)));
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Erro: ${e.toString()}")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Erro: ${e.toString()}")));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -99,14 +99,14 @@ class _LoginPageState extends State<LoginPage> {
               filterQuality: FilterQuality.high,
             ),
           ),
-          Positioned.fill(
-            child: Container(color: AppColors.overlayDark),
-          ),
+          Positioned.fill(child: Container(color: AppColors.overlayDark)),
           Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(AppSpacing.pagePadding),
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: AppSpacing.maxContentWidth),
+                constraints: const BoxConstraints(
+                  maxWidth: AppSpacing.maxContentWidth,
+                ),
                 child: Form(
                   key: _formKey,
                   child: Column(
@@ -166,19 +166,20 @@ class _LoginPageState extends State<LoginPage> {
                         child: TextButton(
                           style: AppButtons.primaryButtonStyle(),
                           onPressed: _isLoading ? null : _signIn,
-                          child: _isLoading
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    color: AppColors.textPrimary,
-                                    strokeWidth: 2,
+                          child:
+                              _isLoading
+                                  ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      color: AppColors.textPrimary,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                  : Text(
+                                    "Entrar",
+                                    style: AppButtons.buttonTextStyle(),
                                   ),
-                                )
-                              : Text(
-                                  "Entrar",
-                                  style: AppButtons.buttonTextStyle(),
-                                ),
                         ),
                       ),
                       const SizedBox(height: AppSpacing.md),

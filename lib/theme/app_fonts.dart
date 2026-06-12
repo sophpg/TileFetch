@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 class AppFonts {
-
   static TextTheme appTextTheme(TextTheme base) {
     return base.apply(
       fontFamily: 'OSD Mono',

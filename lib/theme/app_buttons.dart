@@ -9,13 +9,9 @@ class AppButtons {
   static ButtonStyle primaryButtonStyle() {
     return TextButton.styleFrom(
       backgroundColor: AppColors.fieldBackground,
-      padding: const EdgeInsets.symmetric(
-        vertical: AppSpacing.buttonHeight,
-      ),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.buttonHeight),
       side: AppBorders.defaultBorderSide,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.zero,
-      ),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
     );
   }
 
@@ -23,13 +19,9 @@ class AppButtons {
   static ButtonStyle secondaryButtonStyle() {
     return TextButton.styleFrom(
       backgroundColor: Colors.transparent,
-      padding: const EdgeInsets.symmetric(
-        vertical: AppSpacing.buttonHeight,
-      ),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.buttonHeight),
       side: AppBorders.defaultBorderSide,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.zero,
-      ),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
     );
   }
 
@@ -41,9 +33,7 @@ class AppButtons {
         vertical: AppSpacing.largeButtonHeight,
       ),
       side: AppBorders.defaultBorderSide,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.zero,
-      ),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
     );
   }
 
@@ -55,17 +45,12 @@ class AppButtons {
         vertical: AppSpacing.smallButtonHeight,
       ),
       side: AppBorders.defaultBorderSide,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.zero,
-      ),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
     );
   }
 
   // Texto padrão para botão
   static TextStyle buttonTextStyle({Color color = AppColors.textPrimary}) {
-    return AppFonts.body(
-      color: color,
-      weight: FontWeight.bold,
-    );
+    return AppFonts.body(color: color, weight: FontWeight.bold);
   }
 }

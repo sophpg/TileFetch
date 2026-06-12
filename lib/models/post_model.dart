@@ -59,8 +59,10 @@ class Post {
       tags: List<String>.from(data['tags'] ?? []),
       curtidas: data['curtidas'] ?? 0,
       comentarios: data['comentarios'] ?? 0,
-      dataCriacao: (data['dataCriacao'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      dataAtualizacao: (data['dataAtualizacao'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      dataCriacao:
+          (data['dataCriacao'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      dataAtualizacao:
+          (data['dataAtualizacao'] as Timestamp?)?.toDate() ?? DateTime.now(),
       visibilidade: data['visibilidade'] ?? 'public',
       isLikedByMe: data['isLikedByMe'] ?? false,
     );
@@ -134,10 +136,7 @@ class Resolucao {
   final int largura;
   final int altura;
 
-  Resolucao({
-    required this.largura,
-    required this.altura,
-  });
+  Resolucao({required this.largura, required this.altura});
 
   factory Resolucao.fromMap(Map<String, dynamic> map) {
     return Resolucao(
@@ -147,10 +146,7 @@ class Resolucao {
   }
 
   Map<String, dynamic> toMap() {
-    return {
-      'largura': largura,
-      'altura': altura,
-    };
+    return {'largura': largura, 'altura': altura};
   }
 
   String get label => '${largura}x$altura';
